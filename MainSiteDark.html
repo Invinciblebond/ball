@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>urlsify — link shortener</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f5f0;
+    --fg: #1a1916;
+    --muted: #9b9890;
+    --accent: #1a1916;
+    --border: rgba(26,25,22,0.12);
+    --input-bg: #ffffff;
+    --result-bg: #ffffff;
+    --pill-bg: #1a1916;
+    --pill-fg: #f7f5f0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111010;
+      --fg: #ece9e2;
+      --muted: #5c5a56;
+      --border: rgba(236,233,226,0.1);
+      --input-bg: #1c1b19;
+      --result-bg: #1c1b19;
+      --pill-bg: #ece9e2;
+      --pill-fg: #111010;
+    }
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'DM Mono', monospace;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── LOADER ── */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+
+  #loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .loader-wordmark {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s ease 0.2s forwards;
+  }
+
+  .loader-bar-wrap {
+    width: 48px;
+    height: 1px;
+    background: var(--border);
+    margin-top: 2rem;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeIn 0.4s ease 0.6s forwards;
+  }
+
+  .loader-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--fg);
+    animation: fillBar 1.2s ease 0.7s forwards;
+  }
+
+  .loader-hint {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 1.2rem;
+    opacity: 0;
+    animation: fadeIn 0.4s ease 1s forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+  @keyframes fillBar {
+    to { width: 100%; }
+  }
+
+  /* ── MAIN ── */
+  #app {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+  }
+
+  #app.visible { opacity: 1; }
+
+  /* Header */
+  header {
+    padding: 2.5rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .wordmark {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .wordmark em {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .header-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Hero */
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+
+  .hero-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    max-width: 700px;
+    margin-bottom: 3.5rem;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  /* Search bar */
+  .input-wrap {
+    width: 100%;
+    max-width: 640px;
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .input-wrap input {
+    width: 100%;
+    height: 64px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 36px;
+    padding: 0 7rem 0 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: var(--fg);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.01em;
+  }
+
+  .input-wrap input::placeholder {
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  .input-wrap input:focus {
+    border-color: var(--fg);
+    box-shadow: 0 0 0 3px rgba(26,25,22,0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .input-wrap input:focus {
+      box-shadow: 0 0 0 3px rgba(236,233,226,0.06);
+    }
+  }
+
+  .shorten-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 48px;
+    padding: 0 1.4rem;
+    background: var(--pill-bg);
+    color: var(--pill-fg);
+    border: none;
+    border-radius: 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    white-space: nowrap;
+  }
+
+  .shorten-btn:hover { opacity: 0.8; }
+  .shorten-btn:active { transform: translateY(-50%) scale(0.97); }
+  .shorten-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Result */
+  .result-wrap {
+    width: 100%;
+    max-width: 640px;
+    background: var(--result-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .result-wrap.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  .result-url {
+    font-size: 0.82rem;
+    color: var(--fg);
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .copy-btn, .visit-btn {
+    height: 32px;
+    padding: 0 1rem;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--fg);
+  }
+
+  .copy-btn:hover, .visit-btn:hover { opacity: 0.6; }
+
+  .copy-btn.copied {
+    background: var(--pill-bg);
+    color: var(--pill-fg);
+    border-color: transparent;
+  }
+
+  .error-msg {
+    font-size: 0.68rem;
+    color: #c0392b;
+    letter-spacing: 0.08em;
+    margin-top: 0.6rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    height: 1rem;
+  }
+
+  .error-msg.show { opacity: 1; }
+
+  /* Footer */
+  footer {
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .footer-note {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Decorative dot grid */
+  .dot-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 36px 36px;
+    opacity: 0.5;
+  }
+
+  #app > * { position: relative; z-index: 1; }
+
+  /* Spinner inside button */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid var(--pill-fg);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-wordmark">urlsify</div>
+  <div class="loader-bar-wrap">
+    <div class="loader-bar"></div>
+  </div>
+  <div class="loader-hint">preparing your space</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="dot-grid" aria-hidden="true"></div>
+
+  <header>
+    <a href="#" class="wordmark">urlsify<em>.</em></a>
+    <span class="header-tag">link shortener</span>
+  </header>
+
+  <main class="hero">
+    <p class="hero-label">fast · clean · minimal</p>
+    <h1 class="hero-title">Long links,<br><em>short stories.</em></h1>
+
+    <div class="input-wrap">
+      <input
+        type="url"
+        id="urlInput"
+        placeholder="paste your long link here..."
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="URL to shorten"
+      />
+      <button class="shorten-btn" id="shortenBtn" onclick="shorten()">shorten →</button>
+    </div>
+
+    <div class="error-msg" id="errorMsg">please enter a valid url</div>
+
+    <div class="result-wrap" id="resultWrap" aria-live="polite">
+      <span class="result-url" id="resultUrl"></span>
+      <div class="result-actions">
+        <button class="copy-btn" id="copyBtn" onclick="copyLink()">copy</button>
+        <button class="visit-btn" id="visitBtn" onclick="visitLink()">visit ↗</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span class="footer-note">no sign-up required · free forever</span>
+  </footer>
+</div>
+
+<script>
+  let currentShortUrl = '';
+
+  // Loader logic
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('hidden');
+      document.getElementById('app').classList.add('visible');
+    }, 2000);
+  });
+
+  // Enter key support
+  document.getElementById('urlInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') shorten();
+  });
+
+  function isValidUrl(str) {
+    try {
+      const u = new URL(str.startsWith('http') ? str : 'https://' + str);
+      return u.hostname.includes('.');
+    } catch { return false; }
+  }
+
+  function randomCode() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  }
+
+  function shorten() {
+    const input = document.getElementById('urlInput');
+    const btn = document.getElementById('shortenBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const resultWrap = document.getElementById('resultWrap');
+    const resultUrl = document.getElementById('resultUrl');
+    const val = input.value.trim();
+
+    errorMsg.classList.remove('show');
+    resultWrap.classList.remove('show');
+
+    if (!val || !isValidUrl(val)) {
+      errorMsg.classList.add('show');
+      input.focus();
+      return;
+    }
+
+    // Simulate loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    setTimeout(() => {
+      const code = randomCode();
+      currentShortUrl = `urlsify.com/${code}`;
+
+      resultUrl.textContent = currentShortUrl;
+      resultWrap.classList.add('show');
+
+      btn.disabled = false;
+      btn.innerHTML = 'shorten →';
+
+      const copyBtn = document.getElementById('copyBtn');
+      copyBtn.textContent = 'copy';
+      copyBtn.classList.remove('copied');
+    }, 900);
+  }
+
+  function copyLink() {
+    if (!currentShortUrl) return;
+    const copyBtn = document.getElementById('copyBtn');
+    navigator.clipboard.writeText('https://' + currentShortUrl).catch(() => {});
+    copyBtn.textContent = 'copied!';
+    copyBtn.classList.add('copied');
+    setTimeout(() => {
+      copyBtn.textContent = 'copy';
+      copyBtn.classList.remove('copied');
+    }, 2200);
+  }
+
+  function visitLink() {
+    if (!currentShortUrl) return;
+    alert('In a live deployment, this would open: https://' + currentShortUrl);
+  }
+</script>
+</body>
+</html>
