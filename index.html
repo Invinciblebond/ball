@@ -435,12 +435,7 @@
     } catch { return false; }
   }
 
-  function randomCode() {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  }
-
-  function shorten() {
+  async function shorten() {
     const input = document.getElementById('urlInput');
     const btn = document.getElementById('shortenBtn');
     const errorMsg = document.getElementById('errorMsg');
@@ -457,30 +452,41 @@
       return;
     }
 
-    // Simulate loading
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>';
 
-    setTimeout(() => {
-      const code = randomCode();
-      currentShortUrl = `urlsify.com/${code}`;
+    try {
+      const res = await fetch('https://urlsify.com/api/shorten', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: val.startsWith('http') ? val : 'https://' + val })
+      });
 
-      resultUrl.textContent = currentShortUrl;
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      currentShortUrl = data.short;
+      resultUrl.textContent = data.short;
       resultWrap.classList.add('show');
-
-      btn.disabled = false;
-      btn.innerHTML = 'shorten →';
 
       const copyBtn = document.getElementById('copyBtn');
       copyBtn.textContent = 'copy';
       copyBtn.classList.remove('copied');
-    }, 900);
+
+    } catch (err) {
+      errorMsg.textContent = 'something went wrong, try again';
+      errorMsg.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'shorten →';
+    }
   }
 
   function copyLink() {
     if (!currentShortUrl) return;
     const copyBtn = document.getElementById('copyBtn');
-    navigator.clipboard.writeText('https://' + currentShortUrl).catch(() => {});
+    navigator.clipboard.writeText(currentShortUrl).catch(() => {});
     copyBtn.textContent = 'copied!';
     copyBtn.classList.add('copied');
     setTimeout(() => {
@@ -491,7 +497,7 @@
 
   function visitLink() {
     if (!currentShortUrl) return;
-    alert('In a live deployment, this would open: https://' + currentShortUrl);
+    window.open(currentShortUrl, '_blank');
   }
 </script>
 </body>
