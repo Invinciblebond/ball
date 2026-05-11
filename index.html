@@ -3,9 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>urlsify — link shortener</title>
+
+<!-- Primary Meta Tags -->
+<title>Urlsify — Free Link Shortener & URL Compressor | No Sign-up</title>
+<meta name="description" content="Shorten long URLs instantly with Urlsify. A fast, clean, and free link shortener. No registration required. Perfect for social media and sharing.">
+<meta name="keywords" content="link shortener, url shortener, free link shortener, shorten url, tiny url, urlsify">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://urlsify.com/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://urlsify.com/">
+<meta property="og:title" content="Urlsify — Simple, Fast Link Shortening">
+<meta property="og:description" content="Create short, clean links in seconds. Free forever, no account needed.">
+<meta property="og:image" content="https://urlsify.com/og-image.jpg">
+
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Urlsify",
+  "url": "https://urlsify.com",
+  "description": "A minimal and free URL shortener that requires no account or sign-up.",
+  "applicationCategory": "Utility",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -181,7 +216,7 @@
     color: var(--muted);
   }
 
-  /* Search bar */
+  /* Input */
   .input-wrap {
     width: 100%;
     max-width: 640px;
@@ -318,6 +353,89 @@
 
   .error-msg.show { opacity: 1; }
 
+  /* ── STATS ── */
+  .stats-wrap {
+    width: 100%;
+    max-width: 640px;
+    margin-top: 3rem;
+  }
+
+  .stats-divider {
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .stats-result {
+    width: 100%;
+    background: var(--result-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .stats-result.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  .stats-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+  }
+
+  .stats-row:last-child { border-bottom: none; }
+
+  .stats-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .stats-value {
+    font-size: 0.82rem;
+    color: var(--fg);
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .stats-clicks {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    text-align: right;
+  }
+
+  .stats-error {
+    font-size: 0.68rem;
+    color: #c0392b;
+    letter-spacing: 0.08em;
+    margin-top: 0.6rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    height: 1rem;
+  }
+
+  .stats-error.show { opacity: 1; }
+
   /* Footer */
   footer {
     padding: 2rem 3rem;
@@ -333,7 +451,7 @@
     color: var(--muted);
   }
 
-  /* Decorative dot grid */
+  /* Dot grid */
   .dot-grid {
     position: fixed;
     inset: 0;
@@ -346,7 +464,7 @@
 
   #app > * { position: relative; z-index: 1; }
 
-  /* Spinner inside button */
+  /* Spinner */
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner {
     display: inline-block;
@@ -357,6 +475,18 @@
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
     vertical-align: middle;
+  }
+
+  /* Screen reader only */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
   }
 </style>
 </head>
@@ -382,16 +512,23 @@
 
   <main class="hero">
     <p class="hero-label">fast · clean · minimal</p>
-    <h1 class="hero-title">Long links,<br><em>short stories.</em></h1>
 
+    <section>
+      <h1 class="hero-title">Long links,<br><em>short stories.</em></h1>
+      <h2 class="sr-only">The most minimal free link shortener on the web</h2>
+      <p class="sr-only">Simplify your links and track your engagement with our clean URL compressor. No sign-up required for our tiny url service.</p>
+    </section>
+
+    <!-- Shorten -->
     <div class="input-wrap">
       <input
         type="url"
         id="urlInput"
         placeholder="paste your long link here..."
-        autocomplete="off"
+        autocomplete="url"
         spellcheck="false"
         aria-label="URL to shorten"
+        required
       />
       <button class="shorten-btn" id="shortenBtn" onclick="shorten()">shorten →</button>
     </div>
@@ -405,6 +542,37 @@
         <button class="visit-btn" id="visitBtn" onclick="visitLink()">visit ↗</button>
       </div>
     </div>
+
+    <!-- Stats -->
+    <div class="stats-wrap">
+      <p class="stats-divider">· check stats ·</p>
+      <div class="input-wrap">
+        <input
+          type="url"
+          id="statsInput"
+          placeholder="paste a urlsify.com link to check stats..."
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Short URL to check stats"
+        />
+        <button class="shorten-btn" onclick="checkStats()">check →</button>
+      </div>
+      <div class="stats-error" id="statsError">link not found or invalid</div>
+      <div class="stats-result" id="statsResult" aria-live="polite">
+        <div class="stats-row">
+          <span class="stats-label">short link</span>
+          <span class="stats-value" id="statsShort"></span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">destination</span>
+          <span class="stats-value" id="statsDest"></span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">total clicks</span>
+          <span class="stats-clicks" id="statsClicks"></span>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer>
@@ -415,17 +583,20 @@
 <script>
   let currentShortUrl = '';
 
-  // Loader logic
+  // Loader — reduced to 1000ms for better LCP
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.getElementById('loader').classList.add('hidden');
       document.getElementById('app').classList.add('visible');
-    }, 2000);
+    }, 1000);
   });
 
   // Enter key support
   document.getElementById('urlInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') shorten();
+  });
+  document.getElementById('statsInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') checkStats();
   });
 
   function isValidUrl(str) {
@@ -463,7 +634,6 @@
       });
 
       const data = await res.json();
-
       if (data.error) throw new Error(data.error);
 
       currentShortUrl = data.short;
@@ -498,6 +668,39 @@
   function visitLink() {
     if (!currentShortUrl) return;
     window.open(currentShortUrl, '_blank');
+  }
+
+  async function checkStats() {
+    const input = document.getElementById('statsInput').value.trim();
+    const result = document.getElementById('statsResult');
+    const error = document.getElementById('statsError');
+
+    result.classList.remove('show');
+    error.classList.remove('show');
+
+    let code;
+    try {
+      const parsed = new URL(input);
+      code = parsed.pathname.slice(1);
+    } catch {
+      code = input;
+    }
+
+    if (!code) return;
+
+    try {
+      const res = await fetch(`https://urlsify.com/api/stats/${code}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      document.getElementById('statsShort').textContent = data.short;
+      document.getElementById('statsDest').textContent = data.destination;
+      document.getElementById('statsClicks').textContent = data.clicks;
+      result.classList.add('show');
+
+    } catch {
+      error.classList.add('show');
+    }
   }
 </script>
 </body>
