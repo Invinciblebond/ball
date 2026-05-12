@@ -23,9 +23,7 @@ export default {
         return Response.json({ error: "Invalid URL" }, { status: 400, headers: cors });
       }
 
-      // ── custom slug path ──
       if (customSlug) {
-        // validate: only letters, numbers, hyphens, underscores, 3-30 chars
         if (!/^[a-z0-9_-]{3,30}$/.test(customSlug)) {
           return Response.json(
             { error: "Custom slug must be 3–30 characters and only contain letters, numbers, hyphens, or underscores." },
@@ -33,7 +31,6 @@ export default {
           );
         }
 
-        // block reserved paths
         const reserved = ["api", "admin", "stats", "shorten", "health"];
         if (reserved.includes(customSlug)) {
           return Response.json(
@@ -42,7 +39,6 @@ export default {
           );
         }
 
-        // check if already taken
         const existing = await env.LINKS.get(customSlug);
         if (existing) {
           return Response.json(
@@ -60,7 +56,6 @@ export default {
         );
       }
 
-      // ── random slug path ──
       let code;
       for (let i = 0; i < 5; i++) {
         code = randomCode();
@@ -112,13 +107,15 @@ export default {
       }, { headers: cors });
     }
 
-    // ── Redirect: GET /abc123 ─────────────────────────────────────
-    if (path.length > 1 && path !== "/") {
-      // Let static files pass through to assets
-      if (/\.(ico|png|jpg|jpeg|svg|webp|css|js|json|txt|xml|webmanifest)$/.test(path)) {
-        return fetch(request);
-      }
+    // ── Static Assets ─────────────────────────────────────────────
+    const STATIC_EXTENSIONS = /\.(ico|png|jpg|jpeg|svg|webp|css|js|json|txt|xml|webmanifest|html)$/i;
 
+    if (STATIC_EXTENSIONS.test(path) || path === "/") {
+      return env.ASSETS.fetch(request);
+    }
+
+    // ── Redirect: GET /:code ──────────────────────────────────────
+    if (path.length > 1) {
       const code = path.slice(1);
       const longUrl = await env.LINKS.get(code);
 
@@ -142,13 +139,11 @@ export default {
         await incrementJson(env, `referrers:${code}`, referrer);
 
         return Response.redirect(longUrl, 302);
-      } else {
-        return new Response("Link not found", { status: 404 });
       }
     }
 
     // ── Fallback ──────────────────────────────────────────────────
-    return fetch(request);
+    return env.ASSETS.fetch(request);
   }
 };
 
@@ -190,13 +185,13 @@ function parseReferrer(ref) {
   if (!ref) return "Direct";
   try {
     const host = new URL(ref).hostname.replace(/^www\./, "");
-    if (host.includes("google"))                        return "Google";
+    if (host.includes("google"))                          return "Google";
     if (host.includes("twitter") || host.includes("t.co")) return "Twitter / X";
-    if (host.includes("facebook"))                      return "Facebook";
-    if (host.includes("instagram"))                     return "Instagram";
-    if (host.includes("linkedin"))                      return "LinkedIn";
-    if (host.includes("reddit"))                        return "Reddit";
-    if (host.includes("whatsapp"))                      return "WhatsApp";
+    if (host.includes("facebook"))                        return "Facebook";
+    if (host.includes("instagram"))                       return "Instagram";
+    if (host.includes("linkedin"))                        return "LinkedIn";
+    if (host.includes("reddit"))                          return "Reddit";
+    if (host.includes("whatsapp"))                        return "WhatsApp";
     return host;
   } catch {
     return "Direct";
