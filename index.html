@@ -569,6 +569,172 @@
     clip: rect(0, 0, 0, 0);
     border: 0;
   }
+
+
+/* ── SUGGESTION MODAL ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.modal-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%) scale(0.97);
+  z-index: 201;
+  background: var(--result-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2rem 2.25rem 1.75rem;
+  width: min(480px, calc(100vw - 2.5rem));
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+}
+
+.modal.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  gap: 1rem;
+}
+
+.modal-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  line-height: 1.2;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.1rem 0.25rem;
+  transition: color 0.2s;
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+}
+
+.modal-close:hover { color: var(--fg); }
+
+.modal-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+
+.modal textarea {
+  width: 100%;
+  min-height: 110px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: var(--fg);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+}
+
+.modal textarea::placeholder { color: var(--muted); }
+.modal textarea:focus { border-color: var(--fg); }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+}
+
+.modal-status {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  flex: 1;
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+
+.modal-status.show { opacity: 1; }
+
+.suggest-submit-btn {
+  height: 38px;
+  padding: 0 1.3rem;
+  background: var(--pill-bg);
+  color: var(--pill-fg);
+  border: none;
+  border-radius: 22px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.suggest-submit-btn:hover { opacity: 0.8; }
+.suggest-submit-btn:active { transform: scale(0.97); }
+.suggest-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.suggest-trigger-btn {
+  height: 32px;
+  padding: 0 1rem;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  margin-top: 1rem;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease, background 0.2s;
+}
+
+.suggest-trigger-btn.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.suggest-trigger-btn:hover { opacity: 0.6; }
+
 </style>
 </head>
 <body>
@@ -655,6 +821,9 @@
         <div id="statsBrowsers"></div>
         <div class="stats-section-label">devices</div>
         <div id="statsDevices"></div>
+        <div style="text-align:center;">
+      <button class="suggest-trigger-btn" id="suggestTrigger" onclick="openSuggest()">submit a suggestion</button>
+    </div>
       </div>
     </div>
   </main>
@@ -662,6 +831,19 @@
   <footer>
     <span class="footer-note">no sign-up required · free forever</span>
   </footer>
+  <div class="modal-backdrop" id="modalBackdrop" onclick="closeSuggest()"></div>
+  <div class="modal" id="suggestModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Submit a suggestion</span>
+      <button class="modal-close" onclick="closeSuggest()" aria-label="Close">✕</button>
+    </div>
+    <p class="modal-desc">We're always looking for more things to add! Submit a suggestion and we'll genuinely consider it. You might even see it implemented before the end of the day!</p>
+    <textarea id="suggestionText" placeholder="type your suggestion here..." maxlength="1000"></textarea>
+    <div class="modal-footer">
+      <span class="modal-status" id="modalStatus"></span>
+      <button class="suggest-submit-btn" id="suggestSubmitBtn" onclick="submitSuggestion()">send it →</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -820,9 +1002,54 @@
       renderBars('statsDevices', data.devices);
 
       result.classList.add('show');
+      document.getElementById('suggestTrigger').classList.add('show');
 
     } catch {
       error.classList.add('show');
+    }
+  }
+  function openSuggest() {
+    document.getElementById('modalBackdrop').classList.add('open');
+    document.getElementById('suggestModal').classList.add('open');
+    setTimeout(() => document.getElementById('suggestionText').focus(), 350);
+  }
+
+  function closeSuggest() {
+    document.getElementById('modalBackdrop').classList.remove('open');
+    document.getElementById('suggestModal').classList.remove('open');
+  }
+
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSuggest(); });
+
+  async function submitSuggestion() {
+    const text = document.getElementById('suggestionText').value.trim();
+    const btn = document.getElementById('suggestSubmitBtn');
+    const status = document.getElementById('modalStatus');
+    if (!text) return;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    status.textContent = '';
+    status.classList.remove('show');
+    try {
+      await fetch('https://discord.com/api/webhooks/1503802565848993803/lWlS-IcEJH4MGQoFIQd4ZYLhbahbXppuj9xUZNG6z0CKE97CFpw0CdZuMOgyHV_spcNt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: 'Urlsify Suggestions',
+          avatar_url: 'https://i.ibb.co/FkybQ7DK/favicon.jpg',
+          embeds: [{ title: '💡 New Suggestion', description: text, color: 0x1a1916, footer: { text: 'urlsify.com · suggestion box' }, timestamp: new Date().toISOString() }]
+        })
+      });
+      status.textContent = '✓ sent — thank you!';
+      status.classList.add('show');
+      document.getElementById('suggestionText').value = '';
+      setTimeout(closeSuggest, 1800);
+    } catch {
+      status.textContent = '✕ something went wrong';
+      status.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'send it →';
     }
   }
 </script>
