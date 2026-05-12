@@ -6,9 +6,16 @@
     "enabled": true
   },
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS"
   },
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "LINKS",
+      "id": "2aed9fa18b474213a970601aae8fafb7"
+    }
   ]
 }
