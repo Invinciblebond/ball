@@ -2,10 +2,6 @@ name = "urlsify-worker"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
-[assets]
-directory = "./"
-binding = "ASSETS"
-
 [[kv_namespaces]]
 binding = "LINKS"
-id = "2aed9fa18b474213a970601aae8fafb7"
+id = "2aed9fa18b474213a970601aae8fafb7"  
