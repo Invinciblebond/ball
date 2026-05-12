@@ -45,11 +45,19 @@ export default {
       const longUrl = body.url;
       const customSlug = body.slug?.trim().toLowerCase();
 
+      let parsedUrl;
       try {
-        new URL(longUrl);
+        parsedUrl = new URL(longUrl);
       } catch {
         return Response.json(
           { error: "Invalid URL" },
+          { status: 400, headers: cors }
+        );
+      }
+
+      if (parsedUrl.hostname === "urlsify.com" || parsedUrl.hostname.endsWith(".urlsify.com")) {
+        return Response.json(
+          { error: "You can't shorten a urlsify.com link." },
           { status: 400, headers: cors }
         );
       }
