@@ -831,18 +831,19 @@
   <footer>
     <span class="footer-note">no sign-up required · free forever</span>
   </footer>
-  <div class="modal-backdrop" id="modalBackdrop" onclick="closeSuggest()"></div>
-  <div class="modal" id="suggestModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-header">
-      <span class="modal-title" id="modalTitle">Submit a suggestion</span>
-      <button class="modal-close" onclick="closeSuggest()" aria-label="Close">✕</button>
-    </div>
-    <p class="modal-desc">We're always looking for more things to add! Submit a suggestion and we'll genuinely consider it. You might even see it implemented before the end of the day!</p>
-    <textarea id="suggestionText" placeholder="type your suggestion here..." maxlength="1000"></textarea>
-    <div class="modal-footer">
-      <span class="modal-status" id="modalStatus"></span>
-      <button class="suggest-submit-btn" id="suggestSubmitBtn" onclick="submitSuggestion()">send it →</button>
-    </div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeSuggest()"></div>
+<div class="modal" id="suggestModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-header">
+    <span class="modal-title" id="modalTitle">Submit a suggestion</span>
+    <button class="modal-close" onclick="closeSuggest()" aria-label="Close">✕</button>
+  </div>
+  <p class="modal-desc">We're always looking for more things to add! Submit a suggestion and we'll genuinely consider it. You might even see it implemented before the end of the day!</p>
+  <textarea id="suggestionText" placeholder="type your suggestion here..." maxlength="1000"></textarea>
+  <div class="modal-footer">
+    <span class="modal-status" id="modalStatus"></span>
+    <button class="suggest-submit-btn" id="suggestSubmitBtn" onclick="submitSuggestion()">send it →</button>
   </div>
 </div>
 
