@@ -114,6 +114,11 @@ export default {
 
     // ── Redirect: GET /abc123 ─────────────────────────────────────
     if (path.length > 1 && path !== "/") {
+      // Let static files pass through to assets
+      if (/\.(ico|png|jpg|jpeg|svg|webp|css|js|json|txt|xml|webmanifest)$/.test(path)) {
+        return fetch(request);
+      }
+
       const code = path.slice(1);
       const longUrl = await env.LINKS.get(code);
 
