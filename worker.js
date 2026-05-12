@@ -9,6 +9,32 @@ export default {
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
+    // ── Reserved site pages/files ────────────────────────────────
+    const reservedPaths = [
+      "/about",
+      "/pricing",
+      "/dashboard",
+      "/contact",
+      "/terms",
+      "/privacy",
+
+      // Static files
+      "/android-chrome-192x192.png",
+      "/android-chrome-512x512.png",
+      "/apple-touch-icon.png",
+      "/favicon-16x16.png",
+      "/favicon-32x32.png",
+      "/favicon.ico",
+
+      // Pages
+      "/index.html",
+      "/LightLanding.html",
+      "/Loading.html",
+
+      // Other
+      "/notes.txt"
+    ];
+
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });
     }
@@ -19,8 +45,13 @@ export default {
       const longUrl = body.url;
       const customSlug = body.slug?.trim().toLowerCase();
 
-      try { new URL(longUrl); } catch {
-        return Response.json({ error: "Invalid URL" }, { status: 400, headers: cors });
+      try {
+        new URL(longUrl);
+      } catch {
+        return Response.json(
+          { error: "Invalid URL" },
+          { status: 400, headers: cors }
+        );
       }
 
       // ── custom slug path ──
@@ -28,13 +59,23 @@ export default {
         // validate: only letters, numbers, hyphens, underscores, 3-30 chars
         if (!/^[a-z0-9_-]{3,30}$/.test(customSlug)) {
           return Response.json(
-            { error: "Custom slug must be 3–30 characters and only contain letters, numbers, hyphens, or underscores." },
+            {
+              error:
+                "Custom slug must be 3–30 characters and only contain letters, numbers, hyphens, or underscores.",
+            },
             { status: 400, headers: cors }
           );
         }
 
         // block reserved paths
-        const reserved = ["api", "admin", "stats", "shorten", "health"];
+        const reserved = [
+          "api",
+          "admin",
+          "stats",
+          "shorten",
+          "health",
+        ];
+
         if (reserved.includes(customSlug)) {
           return Response.json(
             { error: "That slug is reserved. Please choose another." },
@@ -44,6 +85,7 @@ export default {
 
         // check if already taken
         const existing = await env.LINKS.get(customSlug);
+
         if (existing) {
           return Response.json(
             { error: "That custom link is already taken. Try another." },
@@ -51,28 +93,47 @@ export default {
           );
         }
 
-        await env.LINKS.put(customSlug, longUrl, { expirationTtl: 60 * 60 * 24 * 365 });
-        await env.LINKS.put(`clicks:${customSlug}`, "0", { expirationTtl: 60 * 60 * 24 * 365 });
+        await env.LINKS.put(customSlug, longUrl, {
+          expirationTtl: 60 * 60 * 24 * 365,
+        });
+
+        await env.LINKS.put(`clicks:${customSlug}`, "0", {
+          expirationTtl: 60 * 60 * 24 * 365,
+        });
 
         return Response.json(
-          { short: `https://urlsify.com/${customSlug}`, code: customSlug },
+          {
+            short: `https://urlsify.com/${customSlug}`,
+            code: customSlug,
+          },
           { headers: cors }
         );
       }
 
       // ── random slug path ──
       let code;
+
       for (let i = 0; i < 5; i++) {
         code = randomCode();
+
         const existing = await env.LINKS.get(code);
+
         if (!existing) break;
       }
 
-      await env.LINKS.put(code, longUrl, { expirationTtl: 60 * 60 * 24 * 365 });
-      await env.LINKS.put(`clicks:${code}`, "0", { expirationTtl: 60 * 60 * 24 * 365 });
+      await env.LINKS.put(code, longUrl, {
+        expirationTtl: 60 * 60 * 24 * 365,
+      });
+
+      await env.LINKS.put(`clicks:${code}`, "0", {
+        expirationTtl: 60 * 60 * 24 * 365,
+      });
 
       return Response.json(
-        { short: `https://urlsify.com/${code}`, code },
+        {
+          short: `https://urlsify.com/${code}`,
+          code,
+        },
         { headers: cors }
       );
     }
@@ -80,123 +141,231 @@ export default {
     // ── API: GET /api/stats/:code ─────────────────────────────────
     if (path.startsWith("/api/stats/") && request.method === "GET") {
       const code = path.slice("/api/stats/".length);
+
       const longUrl = await env.LINKS.get(code);
 
       if (!longUrl) {
-        return Response.json({ error: "Link not found" }, { status: 404, headers: cors });
+        return Response.json(
+          { error: "Link not found" },
+          { status: 404, headers: cors }
+        );
       }
 
-      const clicks = await env.LINKS.get(`clicks:${code}`) ?? "0";
+      const clicks =
+        (await env.LINKS.get(`clicks:${code}`)) ?? "0";
 
-      const countriesRaw = await env.LINKS.get(`countries:${code}`);
-      const countries = countriesRaw ? JSON.parse(countriesRaw) : {};
+      const countriesRaw = await env.LINKS.get(
+        `countries:${code}`
+      );
 
-      const browsersRaw = await env.LINKS.get(`browsers:${code}`);
-      const browsers = browsersRaw ? JSON.parse(browsersRaw) : {};
+      const countries = countriesRaw
+        ? JSON.parse(countriesRaw)
+        : {};
 
-      const devicesRaw = await env.LINKS.get(`devices:${code}`);
-      const devices = devicesRaw ? JSON.parse(devicesRaw) : {};
+      const browsersRaw = await env.LINKS.get(
+        `browsers:${code}`
+      );
 
-      const referrersRaw = await env.LINKS.get(`referrers:${code}`);
-      const referrers = referrersRaw ? JSON.parse(referrersRaw) : {};
+      const browsers = browsersRaw
+        ? JSON.parse(browsersRaw)
+        : {};
 
-      return Response.json({
-        code,
-        short: `https://urlsify.com/${code}`,
-        destination: longUrl,
-        clicks: parseInt(clicks),
-        countries: sortedTop(countries, 5),
-        browsers: sortedTop(browsers, 5),
-        devices: sortedTop(devices, 3),
-        referrers: sortedTop(referrers, 5),
-      }, { headers: cors });
+      const devicesRaw = await env.LINKS.get(
+        `devices:${code}`
+      );
+
+      const devices = devicesRaw
+        ? JSON.parse(devicesRaw)
+        : {};
+
+      const referrersRaw = await env.LINKS.get(
+        `referrers:${code}`
+      );
+
+      const referrers = referrersRaw
+        ? JSON.parse(referrersRaw)
+        : {};
+
+      return Response.json(
+        {
+          code,
+          short: `https://urlsify.com/${code}`,
+          destination: longUrl,
+          clicks: parseInt(clicks),
+          countries: sortedTop(countries, 5),
+          browsers: sortedTop(browsers, 5),
+          devices: sortedTop(devices, 3),
+          referrers: sortedTop(referrers, 5),
+        },
+        { headers: cors }
+      );
     }
 
     // ── Redirect: GET /abc123 ─────────────────────────────────────
-    if (path.length > 1 && path !== "/") {
-      // Let static files pass through to assets
-      if (/\.(ico|png|jpg|jpeg|svg|webp|css|js|json|txt|xml|webmanifest)$/.test(path)) {
+    if (
+      path.length > 1 &&
+      path !== "/" &&
+      !reservedPaths.includes(path)
+    ) {
+      // Let static files pass through
+      if (
+        /\.(ico|png|jpg|jpeg|svg|webp|css|js|json|txt|xml|webmanifest)$/i.test(
+          path
+        )
+      ) {
         return fetch(request);
       }
 
       const code = path.slice(1);
+
       const longUrl = await env.LINKS.get(code);
 
       if (longUrl) {
-        const current = await env.LINKS.get(`clicks:${code}`) ?? "0";
-        await env.LINKS.put(`clicks:${code}`, String(parseInt(current) + 1), {
-          expirationTtl: 60 * 60 * 24 * 365
-        });
+        const current =
+          (await env.LINKS.get(`clicks:${code}`)) ?? "0";
+
+        await env.LINKS.put(
+          `clicks:${code}`,
+          String(parseInt(current) + 1),
+          {
+            expirationTtl: 60 * 60 * 24 * 365,
+          }
+        );
 
         const country = request.cf?.country ?? "Unknown";
-        await incrementJson(env, `countries:${code}`, country);
 
-        const ua = request.headers.get("user-agent") ?? "";
+        await incrementJson(
+          env,
+          `countries:${code}`,
+          country
+        );
+
+        const ua =
+          request.headers.get("user-agent") ?? "";
+
         const browser = parseBrowser(ua);
-        const device = parseDevice(ua);
-        await incrementJson(env, `browsers:${code}`, browser);
-        await incrementJson(env, `devices:${code}`, device);
 
-        const refHeader = request.headers.get("referer") ?? "";
+        const device = parseDevice(ua);
+
+        await incrementJson(
+          env,
+          `browsers:${code}`,
+          browser
+        );
+
+        await incrementJson(
+          env,
+          `devices:${code}`,
+          device
+        );
+
+        const refHeader =
+          request.headers.get("referer") ?? "";
+
         const referrer = parseReferrer(refHeader);
-        await incrementJson(env, `referrers:${code}`, referrer);
+
+        await incrementJson(
+          env,
+          `referrers:${code}`,
+          referrer
+        );
 
         return Response.redirect(longUrl, 302);
       } else {
-        return new Response("Link not found", { status: 404 });
+        return fetch(request);
       }
     }
 
     // ── Fallback ──────────────────────────────────────────────────
     return fetch(request);
-  }
+  },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────
 
 async function incrementJson(env, kvKey, field) {
   const raw = await env.LINKS.get(kvKey);
+
   const obj = raw ? JSON.parse(raw) : {};
+
   obj[field] = (obj[field] ?? 0) + 1;
-  await env.LINKS.put(kvKey, JSON.stringify(obj), {
-    expirationTtl: 60 * 60 * 24 * 365
-  });
+
+  await env.LINKS.put(
+    kvKey,
+    JSON.stringify(obj),
+    {
+      expirationTtl: 60 * 60 * 24 * 365,
+    }
+  );
 }
 
 function sortedTop(obj, n) {
   return Object.entries(obj)
     .sort((a, b) => b[1] - a[1])
     .slice(0, n)
-    .map(([name, count]) => ({ name, count }));
+    .map(([name, count]) => ({
+      name,
+      count,
+    }));
 }
 
 function parseBrowser(ua) {
-  if (/Edg\//i.test(ua))        return "Edge";
-  if (/OPR\//i.test(ua))        return "Opera";
-  if (/Chrome\//i.test(ua))     return "Chrome";
-  if (/Firefox\//i.test(ua))    return "Firefox";
-  if (/Safari\//i.test(ua))     return "Safari";
-  if (/MSIE|Trident/i.test(ua)) return "Internet Explorer";
+  if (/Edg\//i.test(ua)) return "Edge";
+  if (/OPR\//i.test(ua)) return "Opera";
+  if (/Chrome\//i.test(ua)) return "Chrome";
+  if (/Firefox\//i.test(ua)) return "Firefox";
+  if (/Safari\//i.test(ua)) return "Safari";
+  if (/MSIE|Trident/i.test(ua))
+    return "Internet Explorer";
+
   return "Other";
 }
 
 function parseDevice(ua) {
-  if (/tablet|ipad/i.test(ua))                 return "Tablet";
-  if (/mobile|iphone|android|phone/i.test(ua)) return "Mobile";
+  if (/tablet|ipad/i.test(ua))
+    return "Tablet";
+
+  if (
+    /mobile|iphone|android|phone/i.test(ua)
+  )
+    return "Mobile";
+
   return "Desktop";
 }
 
 function parseReferrer(ref) {
   if (!ref) return "Direct";
+
   try {
-    const host = new URL(ref).hostname.replace(/^www\./, "");
-    if (host.includes("google"))                        return "Google";
-    if (host.includes("twitter") || host.includes("t.co")) return "Twitter / X";
-    if (host.includes("facebook"))                      return "Facebook";
-    if (host.includes("instagram"))                     return "Instagram";
-    if (host.includes("linkedin"))                      return "LinkedIn";
-    if (host.includes("reddit"))                        return "Reddit";
-    if (host.includes("whatsapp"))                      return "WhatsApp";
+    const host = new URL(ref).hostname.replace(
+      /^www\./,
+      ""
+    );
+
+    if (host.includes("google"))
+      return "Google";
+
+    if (
+      host.includes("twitter") ||
+      host.includes("t.co")
+    )
+      return "Twitter / X";
+
+    if (host.includes("facebook"))
+      return "Facebook";
+
+    if (host.includes("instagram"))
+      return "Instagram";
+
+    if (host.includes("linkedin"))
+      return "LinkedIn";
+
+    if (host.includes("reddit"))
+      return "Reddit";
+
+    if (host.includes("whatsapp"))
+      return "WhatsApp";
+
     return host;
   } catch {
     return "Direct";
@@ -204,8 +373,14 @@ function parseReferrer(ref) {
 }
 
 function randomCode() {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  return Array.from({ length: 6 }, () =>
-    chars[Math.floor(Math.random() * chars.length)]
+  const chars =
+    "abcdefghijklmnopqrstuvwxyz0123456789";
+
+  return Array.from(
+    { length: 6 },
+    () =>
+      chars[
+        Math.floor(Math.random() * chars.length)
+      ]
   ).join("");
 }
