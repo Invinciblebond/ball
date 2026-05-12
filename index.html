@@ -133,15 +133,9 @@
     animation: fadeIn 0.4s ease 1s forwards;
   }
 
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeIn {
-    to { opacity: 1; }
-  }
-  @keyframes fillBar {
-    to { width: 100%; }
-  }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { to { opacity: 1; } }
+  @keyframes fillBar { to { width: 100%; } }
 
   /* ── MAIN ── */
   #app {
@@ -154,7 +148,6 @@
 
   #app.visible { opacity: 1; }
 
-  /* Header */
   header {
     padding: 2.5rem 3rem;
     display: flex;
@@ -170,10 +163,7 @@
     text-decoration: none;
   }
 
-  .wordmark em {
-    font-style: italic;
-    color: var(--muted);
-  }
+  .wordmark em { font-style: italic; color: var(--muted); }
 
   .header-tag {
     font-size: 0.6rem;
@@ -182,7 +172,6 @@
     color: var(--muted);
   }
 
-  /* Hero */
   .hero {
     flex: 1;
     display: flex;
@@ -211,12 +200,9 @@
     margin-bottom: 3.5rem;
   }
 
-  .hero-title em {
-    font-style: italic;
-    color: var(--muted);
-  }
+  .hero-title em { font-style: italic; color: var(--muted); }
 
-  /* Input */
+  /* ── INPUT ── */
   .input-wrap {
     width: 100%;
     max-width: 640px;
@@ -240,10 +226,7 @@
     letter-spacing: 0.01em;
   }
 
-  .input-wrap input::placeholder {
-    color: var(--muted);
-    letter-spacing: 0.02em;
-  }
+  .input-wrap input::placeholder { color: var(--muted); letter-spacing: 0.02em; }
 
   .input-wrap input:focus {
     border-color: var(--fg);
@@ -251,9 +234,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    .input-wrap input:focus {
-      box-shadow: 0 0 0 3px rgba(236,233,226,0.06);
-    }
+    .input-wrap input:focus { box-shadow: 0 0 0 3px rgba(236,233,226,0.06); }
   }
 
   .shorten-btn {
@@ -280,7 +261,62 @@
   .shorten-btn:active { transform: translateY(-50%) scale(0.97); }
   .shorten-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Result */
+  /* ── CUSTOM SLUG ── */
+  .slug-toggle {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    cursor: pointer;
+    margin-bottom: 0.75rem;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    padding: 0;
+  }
+
+  .slug-toggle:hover { color: var(--fg); }
+
+  .slug-wrap {
+    width: 100%;
+    max-width: 640px;
+    display: none;
+    align-items: center;
+    gap: 0;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 36px;
+    padding: 0 1rem 0 1.5rem;
+    height: 48px;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .slug-wrap.open { display: flex; }
+  .slug-wrap:focus-within { border-color: var(--fg); }
+
+  .slug-prefix {
+    font-size: 0.78rem;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .slug-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--fg);
+    padding: 0 0.5rem;
+    height: 100%;
+  }
+
+  .slug-wrap input::placeholder { color: var(--muted); }
+
+  /* ── RESULT ── */
   .result-wrap {
     width: 100%;
     max-width: 640px;
@@ -298,11 +334,7 @@
     pointer-events: none;
   }
 
-  .result-wrap.show {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: all;
-  }
+  .result-wrap.show { opacity: 1; transform: translateY(0); pointer-events: all; }
 
   .result-url {
     font-size: 0.82rem;
@@ -313,11 +345,7 @@
     white-space: nowrap;
   }
 
-  .result-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-shrink: 0;
-  }
+  .result-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
 
   .copy-btn, .visit-btn {
     height: 32px;
@@ -381,11 +409,7 @@
     pointer-events: none;
   }
 
-  .stats-result.show {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: all;
-  }
+  .stats-result.show { opacity: 1; transform: translateY(0); pointer-events: all; }
 
   .stats-row {
     display: flex;
@@ -424,6 +448,58 @@
     text-align: right;
   }
 
+  .stats-section-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.75rem 1.75rem 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stats-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stats-bar-row:last-child { border-bottom: none; }
+
+  .stats-bar-name {
+    font-size: 0.75rem;
+    color: var(--fg);
+    width: 110px;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stats-bar-track {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .stats-bar-fill {
+    height: 100%;
+    background: var(--fg);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .stats-bar-count {
+    font-size: 0.7rem;
+    color: var(--muted);
+    width: 24px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
   .stats-error {
     font-size: 0.68rem;
     color: #c0392b;
@@ -436,7 +512,7 @@
 
   .stats-error.show { opacity: 1; }
 
-  /* Footer */
+  /* ── FOOTER ── */
   footer {
     padding: 2rem 3rem;
     display: flex;
@@ -451,7 +527,6 @@
     color: var(--muted);
   }
 
-  /* Dot grid */
   .dot-grid {
     position: fixed;
     inset: 0;
@@ -464,7 +539,6 @@
 
   #app > * { position: relative; z-index: 1; }
 
-  /* Spinner */
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner {
     display: inline-block;
@@ -477,7 +551,6 @@
     vertical-align: middle;
   }
 
-  /* Screen reader only */
   .sr-only {
     position: absolute;
     width: 1px;
@@ -495,9 +568,7 @@
 <!-- LOADER -->
 <div id="loader">
   <div class="loader-wordmark">urlsify</div>
-  <div class="loader-bar-wrap">
-    <div class="loader-bar"></div>
-  </div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
   <div class="loader-hint">preparing your space</div>
 </div>
 
@@ -521,25 +592,27 @@
 
     <!-- Shorten -->
     <div class="input-wrap">
-      <input
-        type="url"
-        id="urlInput"
-        placeholder="paste your long link here..."
-        autocomplete="url"
-        spellcheck="false"
-        aria-label="URL to shorten"
-        required
-      />
+      <input type="url" id="urlInput" placeholder="paste your long link here..."
+        autocomplete="url" spellcheck="false" aria-label="URL to shorten" required />
       <button class="shorten-btn" id="shortenBtn" onclick="shorten()">shorten →</button>
     </div>
 
     <div class="error-msg" id="errorMsg">please enter a valid url</div>
 
+    <!-- Custom slug -->
+    <button class="slug-toggle" id="slugToggle" onclick="toggleSlug()">+ custom link</button>
+    <div class="slug-wrap" id="slugWrap">
+      <span class="slug-prefix">urlsify.com/</span>
+      <input type="text" id="slugInput" placeholder="your-custom-slug"
+        autocomplete="off" spellcheck="false" maxlength="30"
+        aria-label="Custom slug" />
+    </div>
+
     <div class="result-wrap" id="resultWrap" aria-live="polite">
       <span class="result-url" id="resultUrl"></span>
       <div class="result-actions">
         <button class="copy-btn" id="copyBtn" onclick="copyLink()">copy</button>
-        <button class="visit-btn" id="visitBtn" onclick="visitLink()">visit ↗</button>
+        <button class="visit-btn" onclick="visitLink()">visit ↗</button>
       </div>
     </div>
 
@@ -547,17 +620,12 @@
     <div class="stats-wrap">
       <p class="stats-divider">· check stats ·</p>
       <div class="input-wrap">
-        <input
-          type="url"
-          id="statsInput"
-          placeholder="paste a urlsify.com link to check stats..."
-          autocomplete="off"
-          spellcheck="false"
-          aria-label="Short URL to check stats"
-        />
+        <input type="url" id="statsInput" placeholder="paste a urlsify.com link to check stats..."
+          autocomplete="off" spellcheck="false" aria-label="Short URL to check stats" />
         <button class="shorten-btn" onclick="checkStats()">check →</button>
       </div>
       <div class="stats-error" id="statsError">link not found or invalid</div>
+
       <div class="stats-result" id="statsResult" aria-live="polite">
         <div class="stats-row">
           <span class="stats-label">short link</span>
@@ -571,6 +639,14 @@
           <span class="stats-label">total clicks</span>
           <span class="stats-clicks" id="statsClicks"></span>
         </div>
+        <div class="stats-section-label">top countries</div>
+        <div id="statsCountries"></div>
+        <div class="stats-section-label">top referrers</div>
+        <div id="statsReferrers"></div>
+        <div class="stats-section-label">browsers</div>
+        <div id="statsBrowsers"></div>
+        <div class="stats-section-label">devices</div>
+        <div id="statsDevices"></div>
       </div>
     </div>
   </main>
@@ -583,7 +659,6 @@
 <script>
   let currentShortUrl = '';
 
-  // Loader — reduced to 1000ms for better LCP
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.getElementById('loader').classList.add('hidden');
@@ -591,12 +666,14 @@
     }, 1000);
   });
 
-  // Enter key support
   document.getElementById('urlInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') shorten();
   });
   document.getElementById('statsInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') checkStats();
+  });
+  document.getElementById('slugInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') shorten();
   });
 
   function isValidUrl(str) {
@@ -606,6 +683,15 @@
     } catch { return false; }
   }
 
+  function toggleSlug() {
+    const wrap = document.getElementById('slugWrap');
+    const btn = document.getElementById('slugToggle');
+    const isOpen = wrap.classList.toggle('open');
+    btn.textContent = isOpen ? '− custom link' : '+ custom link';
+    if (isOpen) document.getElementById('slugInput').focus();
+    else document.getElementById('slugInput').value = '';
+  }
+
   async function shorten() {
     const input = document.getElementById('urlInput');
     const btn = document.getElementById('shortenBtn');
@@ -613,11 +699,13 @@
     const resultWrap = document.getElementById('resultWrap');
     const resultUrl = document.getElementById('resultUrl');
     const val = input.value.trim();
+    const slug = document.getElementById('slugInput').value.trim().toLowerCase();
 
     errorMsg.classList.remove('show');
     resultWrap.classList.remove('show');
 
     if (!val || !isValidUrl(val)) {
+      errorMsg.textContent = 'please enter a valid url';
       errorMsg.classList.add('show');
       input.focus();
       return;
@@ -630,7 +718,10 @@
       const res = await fetch('https://urlsify.com/api/shorten', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: val.startsWith('http') ? val : 'https://' + val })
+        body: JSON.stringify({
+          url: val.startsWith('http') ? val : 'https://' + val,
+          ...(slug && { slug })
+        })
       });
 
       const data = await res.json();
@@ -645,7 +736,7 @@
       copyBtn.classList.remove('copied');
 
     } catch (err) {
-      errorMsg.textContent = 'something went wrong, try again';
+      errorMsg.textContent = err.message || 'something went wrong, try again';
       errorMsg.classList.add('show');
     } finally {
       btn.disabled = false;
@@ -668,6 +759,24 @@
   function visitLink() {
     if (!currentShortUrl) return;
     window.open(currentShortUrl, '_blank');
+  }
+
+  function renderBars(containerId, items) {
+    const el = document.getElementById(containerId);
+    if (!items || items.length === 0) {
+      el.innerHTML = '<div class="stats-bar-row"><span class="stats-bar-name" style="color:var(--muted)">no data yet</span></div>';
+      return;
+    }
+    const max = items[0].count;
+    el.innerHTML = items.map(({ name, count }) => `
+      <div class="stats-bar-row">
+        <span class="stats-bar-name">${name}</span>
+        <div class="stats-bar-track">
+          <div class="stats-bar-fill" style="width:${Math.round((count / max) * 100)}%"></div>
+        </div>
+        <span class="stats-bar-count">${count}</span>
+      </div>
+    `).join('');
   }
 
   async function checkStats() {
@@ -696,6 +805,12 @@
       document.getElementById('statsShort').textContent = data.short;
       document.getElementById('statsDest').textContent = data.destination;
       document.getElementById('statsClicks').textContent = data.clicks;
+
+      renderBars('statsCountries', data.countries);
+      renderBars('statsReferrers', data.referrers);
+      renderBars('statsBrowsers', data.browsers);
+      renderBars('statsDevices', data.devices);
+
       result.classList.add('show');
 
     } catch {
