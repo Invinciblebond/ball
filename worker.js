@@ -109,6 +109,8 @@ export default {
           expirationTtl: 60 * 60 * 24 * 365,
         });
 
+        await notifyDiscord(customSlug, longUrl);
+
         return Response.json(
           {
             short: `https://urlsify.com/${customSlug}`,
@@ -136,6 +138,8 @@ export default {
       await env.LINKS.put(`clicks:${code}`, "0", {
         expirationTtl: 60 * 60 * 24 * 365,
       });
+
+      await notifyDiscord(code, longUrl);
 
       return Response.json(
         {
@@ -290,6 +294,25 @@ export default {
 };
 
 // ── Helpers ───────────────────────────────────────────────────────
+
+async function notifyDiscord(code, destination) {
+  await fetch('https://discord.com/api/webhooks/1504026402377306143/auoTQp5x7xEuyt0_rXcDyqXLyHYl6qWkQ5PtSdHljzvP0QAxIydKYZ5m2ilk_XxWXa3n', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      embeds: [{
+        title: '🔗 New Link Created!',
+        color: 0x1a1916,
+        fields: [
+          { name: '✂️ Short Link', value: `https://urlsify.com/${code}`, inline: false },
+          { name: '🌐 Destination', value: destination, inline: false },
+        ],
+        timestamp: new Date().toISOString(),
+        footer: { text: 'urlsify.com' }
+      }]
+    })
+  });
+}
 
 async function incrementJson(env, kvKey, field) {
   const raw = await env.LINKS.get(kvKey);
