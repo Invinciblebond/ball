@@ -1053,6 +1053,18 @@
       btn.innerHTML = 'send it →';
     }
   }
+
+  setTimeout(async () => {
+  if (document.visibilityState !== 'visible') return;
+  await fetch('/api/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      page: window.location.href,
+      userAgent: navigator.userAgent
+    })
+  });
+}, 5000);
 </script>
 </body>
 </html>
