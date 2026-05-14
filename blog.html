@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Finance, Simplified</title>
+<meta name="description" content="Clear thinking on money, markets, and wealth. No jargon. No noise.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f5f0;
+    --fg: #1a1916;
+    --muted: #9b9890;
+    --border: rgba(26,25,22,0.12);
+    --card-bg: #ffffff;
+    --pill-bg: #1a1916;
+    --pill-fg: #f7f5f0;
+    --tag-bg: rgba(26,25,22,0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111010;
+      --fg: #ece9e2;
+      --muted: #5c5a56;
+      --border: rgba(236,233,226,0.1);
+      --card-bg: #1c1b19;
+      --pill-bg: #ece9e2;
+      --pill-fg: #111010;
+      --tag-bg: rgba(236,233,226,0.07);
+    }
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* LOADER */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+  #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .loader-wordmark {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s ease 0.2s forwards;
+  }
+  .loader-bar-wrap {
+    width: 48px; height: 1px;
+    background: var(--border);
+    margin-top: 2rem; overflow: hidden;
+    opacity: 0; animation: fadeIn 0.4s ease 0.6s forwards;
+  }
+  .loader-bar { height: 100%; width: 0%; background: var(--fg); animation: fillBar 1.2s ease 0.7s forwards; }
+  .loader-hint {
+    font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); margin-top: 1.2rem;
+    opacity: 0; animation: fadeIn 0.4s ease 1s forwards;
+  }
+
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { to { opacity: 1; } }
+  @keyframes fillBar { to { width: 100%; } }
+
+  /* APP */
+  #app {
+    min-height: 100dvh;
+    display: flex; flex-direction: column;
+    opacity: 0; transition: opacity 0.7s ease;
+  }
+  #app.visible { opacity: 1; }
+
+  .dot-grid {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 36px 36px; opacity: 0.5;
+  }
+
+  #app > * { position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    padding: 2.5rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .wordmark {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem; letter-spacing: -0.02em;
+    color: var(--fg); text-decoration: none;
+  }
+  .wordmark em { font-style: italic; color: var(--muted); }
+
+  nav { display: flex; gap: 2rem; align-items: center; }
+  nav a {
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); text-decoration: none; transition: color 0.2s;
+  }
+  nav a:hover { color: var(--fg); }
+
+  .nav-subscribe {
+    height: 36px; padding: 0 1.2rem;
+    background: var(--pill-bg); color: var(--pill-fg);
+    border: none; border-radius: 24px;
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.1em; cursor: pointer;
+    transition: opacity 0.2s;
+    text-decoration: none; display: flex; align-items: center;
+  }
+  .nav-subscribe:hover { opacity: 0.75; }
+
+  /* HERO */
+  .hero {
+    padding: 6rem 3rem 5rem;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: end;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-left {}
+
+  .hero-label {
+    font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 2rem;
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    line-height: 1.05; letter-spacing: -0.03em;
+    color: var(--fg); margin-bottom: 2rem;
+  }
+  .hero-title em { font-style: italic; color: var(--muted); }
+
+  .hero-desc {
+    font-size: 0.8rem; color: var(--muted);
+    line-height: 1.8; letter-spacing: 0.02em;
+    max-width: 400px; margin-bottom: 2.5rem;
+  }
+
+  .hero-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+  .btn-primary {
+    height: 48px; padding: 0 1.6rem;
+    background: var(--pill-bg); color: var(--pill-fg);
+    border: none; border-radius: 28px;
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.08em; cursor: pointer;
+    transition: opacity 0.2s; text-decoration: none;
+    display: inline-flex; align-items: center;
+  }
+  .btn-primary:hover { opacity: 0.75; }
+
+  .btn-ghost {
+    height: 48px; padding: 0 1.4rem;
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--border); border-radius: 28px;
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.08em; cursor: pointer;
+    transition: opacity 0.2s; text-decoration: none;
+    display: inline-flex; align-items: center;
+  }
+  .btn-ghost:hover { opacity: 0.6; }
+
+  /* FEATURED ARTICLE (right of hero) */
+  .featured-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+    transition: box-shadow 0.2s;
+    text-decoration: none; color: var(--fg); display: block;
+  }
+  .featured-card:hover .fc-title { opacity: 0.7; }
+
+  .featured-thumb {
+    width: 100%; aspect-ratio: 16/9;
+    background: var(--fg);
+    position: relative; overflow: hidden;
+  }
+
+  /* SVG chart illustration inside featured thumb */
+  .featured-thumb svg { width: 100%; height: 100%; display: block; }
+
+  .fc-body { padding: 1.5rem 1.75rem 1.75rem; }
+
+  .fc-tag {
+    display: inline-block;
+    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); background: var(--tag-bg);
+    padding: 0.3rem 0.7rem; border-radius: 12px;
+    margin-bottom: 0.85rem;
+  }
+
+  .fc-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem; line-height: 1.15; letter-spacing: -0.02em;
+    color: var(--fg); margin-bottom: 0.75rem;
+    transition: opacity 0.2s;
+  }
+  .fc-title em { font-style: italic; color: var(--muted); }
+
+  .fc-meta {
+    font-size: 0.62rem; letter-spacing: 0.1em;
+    color: var(--muted); text-transform: uppercase;
+  }
+
+  /* TICKER BAR */
+  .ticker-bar {
+    border-bottom: 1px solid var(--border);
+    overflow: hidden; position: relative;
+    height: 40px;
+  }
+
+  .ticker-track {
+    display: flex; align-items: center;
+    height: 100%; gap: 3rem;
+    white-space: nowrap;
+    animation: ticker 28s linear infinite;
+    padding: 0 2rem;
+  }
+
+  .ticker-item {
+    display: flex; gap: 0.5rem; align-items: baseline;
+    font-size: 0.65rem; letter-spacing: 0.06em; flex-shrink: 0;
+  }
+  .ticker-sym { color: var(--fg); }
+  .ticker-val { color: var(--muted); }
+  .ticker-chg { }
+  .ticker-up { color: #2e7d32; }
+  .ticker-dn { color: #c62828; }
+
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* CONTENT LAYOUT */
+  .content-wrap {
+    padding: 4rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .section-label {
+    font-size: 0.6rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .section-more {
+    font-size: 0.6rem; letter-spacing: 0.12em;
+    color: var(--muted); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .section-more:hover { color: var(--fg); }
+
+  /* ARTICLE LIST */
+  .article-list { display: flex; flex-direction: column; gap: 0; }
+
+  .article-row {
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 1.25rem; align-items: start;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none; color: var(--fg);
+    transition: opacity 0.2s;
+  }
+  .article-row:first-child { border-top: 1px solid var(--border); }
+  .article-row:hover { opacity: 0.65; }
+
+  .article-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem; color: var(--border);
+    letter-spacing: -0.02em; line-height: 1; padding-top: 2px;
+    min-width: 24px;
+  }
+
+  .article-body {}
+
+  .article-tag {
+    font-size: 0.58rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+
+  .article-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem; line-height: 1.2; letter-spacing: -0.015em;
+    color: var(--fg); margin-bottom: 0.4rem;
+  }
+  .article-title em { font-style: italic; color: var(--muted); }
+
+  .article-meta {
+    font-size: 0.6rem; letter-spacing: 0.08em; color: var(--muted);
+  }
+
+  .article-arrow {
+    font-size: 0.7rem; color: var(--muted); padding-top: 4px;
+  }
+
+  /* SIDEBAR */
+  .sidebar {}
+
+  /* NEWSLETTER WIDGET */
+  .newsletter-widget {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 1.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .nw-label {
+    font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1rem;
+  }
+
+  .nw-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem; letter-spacing: -0.02em;
+    line-height: 1.1; color: var(--fg); margin-bottom: 0.75rem;
+  }
+  .nw-title em { font-style: italic; color: var(--muted); }
+
+  .nw-desc {
+    font-size: 0.7rem; color: var(--muted);
+    line-height: 1.7; letter-spacing: 0.02em;
+    margin-bottom: 1.25rem;
+  }
+
+  .nw-input {
+    width: 100%; height: 48px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 28px; padding: 0 1.25rem;
+    font-family: 'DM Mono', monospace; font-size: 0.78rem;
+    color: var(--fg); outline: none; margin-bottom: 0.65rem;
+    transition: border-color 0.2s;
+  }
+  .nw-input::placeholder { color: var(--muted); }
+  .nw-input:focus { border-color: var(--fg); }
+
+  .nw-btn {
+    width: 100%; height: 44px;
+    background: var(--pill-bg); color: var(--pill-fg);
+    border: none; border-radius: 28px;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s;
+  }
+  .nw-btn:hover { opacity: 0.75; }
+
+  .nw-note {
+    font-size: 0.58rem; letter-spacing: 0.08em;
+    color: var(--muted); text-align: center; margin-top: 0.6rem;
+  }
+
+  /* TOPICS WIDGET */
+  .topics-widget {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 1.75rem;
+    margin-bottom: 2rem;
+  }
+  .tw-label {
+    font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1.1rem;
+  }
+  .tw-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tw-tag {
+    font-size: 0.65rem; letter-spacing: 0.1em;
+    color: var(--fg); background: var(--tag-bg);
+    padding: 0.4rem 0.9rem; border-radius: 20px;
+    border: 1px solid var(--border);
+    text-decoration: none; transition: background 0.2s;
+  }
+  .tw-tag:hover { background: var(--border); }
+
+  /* STAT CARDS */
+  .stat-widget {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+  }
+  .sw-header {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.58rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .sw-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    gap: 0.5rem;
+  }
+  .sw-row:last-child { border-bottom: none; }
+  .sw-name { font-size: 0.75rem; color: var(--fg); }
+  .sw-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; }
+  .sw-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem; color: var(--fg); letter-spacing: -0.01em;
+  }
+  .sw-chg { font-size: 0.62rem; letter-spacing: 0.05em; }
+  .sw-up { color: #2e7d32; }
+  .sw-dn { color: #c62828; }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 3rem;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-note {
+    font-size: 0.6rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a {
+    font-size: 0.6rem; letter-spacing: 0.12em;
+    color: var(--muted); text-decoration: none; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--fg); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    header { padding: 1.5rem; }
+    nav a { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem 2.5rem; gap: 2rem; }
+    .content-wrap { grid-template-columns: 1fr; padding: 2rem 1.5rem; }
+    .sidebar { display: none; }
+    footer { padding: 1.5rem; flex-direction: column; gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-wordmark">ledger</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div class="loader-hint">loading the numbers</div>
+</div>
+
+<div id="app">
+  <div class="dot-grid" aria-hidden="true"></div>
+
+  <!-- HEADER -->
+  <header>
+    <a href="#" class="wordmark">ledger<em>.</em></a>
+    <nav>
+      <a href="#">markets</a>
+      <a href="#">investing</a>
+      <a href="#">economy</a>
+      <a href="#">personal finance</a>
+      <a href="#" class="nav-subscribe">subscribe →</a>
+    </nav>
+  </header>
+
+  <!-- TICKER -->
+  <div class="ticker-bar" aria-label="Market ticker">
+    <div class="ticker-track" id="tickerTrack">
+      <!-- duplicated for seamless loop -->
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-label">finance · markets · wealth</p>
+      <h1 class="hero-title">Money made<br><em>legible.</em></h1>
+      <p class="hero-desc">No jargon. No noise. Just clear thinking on markets, investing, and the economy — written for people who have better things to do than decode Wall Street.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary">start reading →</a>
+        <a href="#" class="btn-ghost">browse topics</a>
+      </div>
+    </div>
+
+    <!-- FEATURED ARTICLE -->
+    <a href="#" class="featured-card">
+      <div class="featured-thumb">
+        <!-- Inline SVG: stylized line chart illustration -->
+        <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="640" height="360" fill="#1a1916"/>
+          <!-- grid lines -->
+          <line x1="0" y1="90"  x2="640" y2="90"  stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <line x1="0" y1="180" x2="640" y2="180" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <line x1="0" y1="270" x2="640" y2="270" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <line x1="128" y1="0" x2="128" y2="360" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="256" y1="0" x2="256" y2="360" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="384" y1="0" x2="384" y2="360" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="512" y1="0" x2="512" y2="360" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <!-- area fill -->
+          <path d="M0,280 C60,270 100,240 160,220 C220,200 260,190 310,160 C360,130 390,140 440,110 C490,80 540,70 640,55 L640,360 L0,360 Z"
+                fill="rgba(255,255,255,0.04)"/>
+          <!-- main line -->
+          <path d="M0,280 C60,270 100,240 160,220 C220,200 260,190 310,160 C360,130 390,140 440,110 C490,80 540,70 640,55"
+                fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/>
+          <!-- dots -->
+          <circle cx="310" cy="160" r="4" fill="#f7f5f0"/>
+          <circle cx="440" cy="110" r="4" fill="#f7f5f0"/>
+          <circle cx="640" cy="55"  r="4" fill="#f7f5f0"/>
+          <!-- label -->
+          <text x="32" y="44" font-family="DM Mono, monospace" font-size="11" fill="rgba(255,255,255,0.3)" letter-spacing="2">YTD PERFORMANCE</text>
+          <text x="32" y="68" font-family="DM Serif Display, serif" font-size="28" fill="rgba(255,255,255,0.9)" letter-spacing="-1">+18.4%</text>
+        </svg>
+      </div>
+      <div class="fc-body">
+        <span class="fc-tag">markets · featured</span>
+        <div class="fc-title">Why the <em>rally</em> still has legs — and what could end it</div>
+        <div class="fc-meta">may 14, 2026 · 8 min read</div>
+      </div>
+    </a>
+  </section>
+
+  <!-- CONTENT -->
+  <div class="content-wrap">
+
+    <!-- ARTICLES -->
+    <main>
+      <div class="section-header">
+        <span class="section-label">· latest ·</span>
+        <a href="#" class="section-more">view all →</a>
+      </div>
+
+      <div class="article-list">
+
+        <a href="#" class="article-row">
+          <span class="article-num">01</span>
+          <div class="article-body">
+            <div class="article-tag">personal finance</div>
+            <div class="article-title">The <em>quiet math</em> behind retiring ten years early</div>
+            <div class="article-meta">may 15 · 6 min read · 2.4k reads</div>
+          </div>
+          <span class="article-arrow">↗</span>
+        </a>
+
+        <a href="#" class="article-row">
+          <span class="article-num">02</span>
+          <div class="article-body">
+            <div class="article-tag">economy</div>
+            <div class="article-title">Inflation cools — but the Fed isn't <em>convinced yet</em></div>
+            <div class="article-meta">may 14 · 4 min read · 5.1k reads</div>
+          </div>
+          <span class="article-arrow">↗</span>
+        </a>
+
+        <a href="#" class="article-row">
+          <span class="article-num">03</span>
+          <div class="article-body">
+            <div class="article-tag">investing</div>
+            <div class="article-title">Index funds at 50: what Bogle got right, and <em>what's changed</em></div>
+            <div class="article-meta">may 13 · 10 min read · 8.7k reads</div>
+          </div>
+          <span class="article-arrow">↗</span>
+        </a>
+
+        <a href="#" class="article-row">
+          <span class="article-num">04</span>
+          <div class="article-body">
+            <div class="article-tag">markets</div>
+            <div class="article-title">Tech earnings: the <em>numbers</em> beneath the numbers</div>
+            <div class="article-meta">may 12 · 7 min read · 3.2k reads</div>
+          </div>
+          <span class="article-arrow">↗</span>
+        </a>
+
+        <a href="#" class="article-row">
+          <span class="article-num">05</span>
+          <div class="article-body">
+            <div class="article-tag">personal finance</div>
+            <div class="article-title">High-yield savings accounts: <em>still worth it</em> in 2026?</div>
+            <div class="article-meta">may 11 · 5 min read · 11.2k reads</div>
+          </div>
+          <span class="article-arrow">↗</span>
+        </a>
+
+        <a href="#" class="article-row">
+          <span class="article-num">06</span>
+          <div class="article-body">
+            <div class="article-tag">economy</div>
+            <div class="article-title">A plain-English guide to <em>tariffs</em> and why they matter to you</div>
+            <div class="article-meta">may 10 · 9 min read · 14.5k reads</div>
+          </div>
+          <span class="article-arrow">↗</span>
+        </a>
+
+      </div>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- NEWSLETTER -->
+      <div class="newsletter-widget">
+        <p class="nw-label">· weekly digest ·</p>
+        <div class="nw-title">Markets in your<br><em>inbox.</em></div>
+        <p class="nw-desc">One email every Sunday. The week's most important financial stories, decoded. No spam, ever.</p>
+        <input type="email" class="nw-input" placeholder="your@email.com" />
+        <button class="nw-btn">join 24,000 readers →</button>
+        <p class="nw-note">free forever · unsubscribe anytime</p>
+      </div>
+
+      <!-- MARKET SNAPSHOT -->
+      <div class="stat-widget" style="margin-bottom: 2rem;">
+        <div class="sw-header">· market snapshot ·</div>
+        <div class="sw-row">
+          <span class="sw-name">S&amp;P 500</span>
+          <div class="sw-right">
+            <span class="sw-val">5,841</span>
+            <span class="sw-chg sw-up">+0.74%</span>
+          </div>
+        </div>
+        <div class="sw-row">
+          <span class="sw-name">NASDAQ</span>
+          <div class="sw-right">
+            <span class="sw-val">18,296</span>
+            <span class="sw-chg sw-up">+1.12%</span>
+          </div>
+        </div>
+        <div class="sw-row">
+          <span class="sw-name">10Y Treasury</span>
+          <div class="sw-right">
+            <span class="sw-val">4.38%</span>
+            <span class="sw-chg sw-dn">−0.04</span>
+          </div>
+        </div>
+        <div class="sw-row">
+          <span class="sw-name">Gold</span>
+          <div class="sw-right">
+            <span class="sw-val">$3,241</span>
+            <span class="sw-chg sw-dn">−0.22%</span>
+          </div>
+        </div>
+        <div class="sw-row">
+          <span class="sw-name">BTC</span>
+          <div class="sw-right">
+            <span class="sw-val">$103,480</span>
+            <span class="sw-chg sw-up">+2.38%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOPICS -->
+      <div class="topics-widget">
+        <p class="tw-label">· browse topics ·</p>
+        <div class="tw-tags">
+          <a href="#" class="tw-tag">markets</a>
+          <a href="#" class="tw-tag">investing</a>
+          <a href="#" class="tw-tag">economy</a>
+          <a href="#" class="tw-tag">real estate</a>
+          <a href="#" class="tw-tag">retirement</a>
+          <a href="#" class="tw-tag">crypto</a>
+          <a href="#" class="tw-tag">budgeting</a>
+          <a href="#" class="tw-tag">tax</a>
+          <a href="#" class="tw-tag">etfs</a>
+          <a href="#" class="tw-tag">bonds</a>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-note">ledger · finance made legible</span>
+    <div class="footer-links">
+      <a href="#">about</a>
+      <a href="#">archive</a>
+      <a href="#">advertise</a>
+      <a href="#">rss</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Ticker data
+  const tickers = [
+    { sym: 'SPY', val: '584.10', chg: '+0.74%', up: true },
+    { sym: 'QQQ', val: '496.32', chg: '+1.12%', up: true },
+    { sym: 'AAPL', val: '208.45', chg: '+0.38%', up: true },
+    { sym: 'MSFT', val: '452.80', chg: '+0.91%', up: true },
+    { sym: 'NVDA', val: '1,087.30', chg: '+3.14%', up: true },
+    { sym: 'BTC', val: '$103,480', chg: '+2.38%', up: true },
+    { sym: 'GLD', val: '324.10', chg: '−0.22%', up: false },
+    { sym: 'TLT', val: '91.40', chg: '−0.18%', up: false },
+    { sym: 'EUR/USD', val: '1.0821', chg: '+0.09%', up: true },
+    { sym: 'OIL', val: '$78.44', chg: '−0.55%', up: false },
+  ];
+
+  function buildTicker() {
+    const track = document.getElementById('tickerTrack');
+    const html = [...tickers, ...tickers].map(t => `
+      <div class="ticker-item">
+        <span class="ticker-sym">${t.sym}</span>
+        <span class="ticker-val">${t.val}</span>
+        <span class="ticker-chg ${t.up ? 'ticker-up' : 'ticker-dn'}">${t.chg}</span>
+      </div>
+    `).join('');
+    track.innerHTML = html;
+  }
+  buildTicker();
+
+  // Loader
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('hidden');
+      document.getElementById('app').classList.add('visible');
+    }, 1000);
+  });
+</script>
+</body>
+</html>
