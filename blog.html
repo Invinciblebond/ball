@@ -21,6 +21,8 @@
     --pill-bg: #1a1916;
     --pill-fg: #f7f5f0;
     --tag-bg: rgba(26,25,22,0.06);
+    --accent-teal: #1D9E75;
+    --accent-teal-light: rgba(29,158,117,0.12);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -33,6 +35,8 @@
       --pill-bg: #ece9e2;
       --pill-fg: #111010;
       --tag-bg: rgba(236,233,226,0.07);
+      --accent-teal: #5DCAA5;
+      --accent-teal-light: rgba(93,202,165,0.12);
     }
   }
 
@@ -45,48 +49,33 @@
 
   /* LOADER */
   #loader {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 100; transition: opacity 0.6s ease, visibility 0.6s ease;
   }
   #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
   .loader-wordmark {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.5rem, 8vw, 5rem);
-    letter-spacing: -0.03em;
-    color: var(--fg);
-    opacity: 0;
-    transform: translateY(12px);
+    font-family: 'DM Serif Display', serif; font-size: clamp(2.5rem, 8vw, 5rem);
+    letter-spacing: -0.03em; color: var(--fg); opacity: 0; transform: translateY(12px);
     animation: fadeUp 0.7s ease 0.2s forwards;
   }
   .loader-bar-wrap {
-    width: 48px; height: 1px;
-    background: var(--border);
-    margin-top: 2rem; overflow: hidden;
+    width: 48px; height: 1px; background: var(--border); margin-top: 2rem; overflow: hidden;
     opacity: 0; animation: fadeIn 0.4s ease 0.6s forwards;
   }
   .loader-bar { height: 100%; width: 0%; background: var(--fg); animation: fillBar 1.2s ease 0.7s forwards; }
   .loader-hint {
     font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--muted); margin-top: 1.2rem;
-    opacity: 0; animation: fadeIn 0.4s ease 1s forwards;
+    color: var(--muted); margin-top: 1.2rem; opacity: 0; animation: fadeIn 0.4s ease 1s forwards;
   }
 
   @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeIn { to { opacity: 1; } }
   @keyframes fillBar { to { width: 100%; } }
 
-  /* APP */
   #app {
-    min-height: 100dvh;
-    display: flex; flex-direction: column;
+    min-height: 100dvh; display: flex; flex-direction: column;
     opacity: 0; transition: opacity 0.7s ease;
   }
   #app.visible { opacity: 1; }
@@ -96,19 +85,15 @@
     background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
     background-size: 36px 36px; opacity: 0.5;
   }
-
   #app > * { position: relative; z-index: 1; }
 
   /* HEADER */
   header {
-    padding: 2.5rem 3rem;
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 2.5rem 3rem; display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid var(--border);
   }
-
   .wordmark {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.35rem; letter-spacing: -0.02em;
+    font-family: 'DM Serif Display', serif; font-size: 1.35rem; letter-spacing: -0.02em;
     color: var(--fg); text-decoration: none;
   }
   .wordmark em { font-style: italic; color: var(--muted); }
@@ -121,268 +106,230 @@
   nav a:hover { color: var(--fg); }
 
   .nav-subscribe {
-    height: 36px; padding: 0 1.2rem;
-    background: var(--pill-bg); color: var(--pill-fg);
-    border: none; border-radius: 24px;
-    font-family: 'DM Mono', monospace; font-size: 0.65rem;
-    letter-spacing: 0.1em; cursor: pointer;
-    transition: opacity 0.2s;
+    height: 36px; padding: 0 1.2rem; background: var(--pill-bg); color: var(--pill-fg);
+    border: none; border-radius: 24px; font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.1em; cursor: pointer; transition: opacity 0.2s;
     text-decoration: none; display: flex; align-items: center;
   }
   .nav-subscribe:hover { opacity: 0.75; }
 
   /* HERO */
   .hero {
-    padding: 6rem 3rem 5rem;
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 4rem; align-items: end;
-    border-bottom: 1px solid var(--border);
+    padding: 6rem 3rem 5rem; display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: end; border-bottom: 1px solid var(--border);
   }
-
-  .hero-left {}
 
   .hero-label {
     font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase;
     color: var(--muted); margin-bottom: 2rem;
   }
-
   .hero-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.8rem, 5vw, 4.5rem);
-    line-height: 1.05; letter-spacing: -0.03em;
-    color: var(--fg); margin-bottom: 2rem;
+    font-family: 'DM Serif Display', serif; font-size: clamp(2.8rem, 5vw, 4.5rem);
+    line-height: 1.05; letter-spacing: -0.03em; color: var(--fg); margin-bottom: 2rem;
   }
   .hero-title em { font-style: italic; color: var(--muted); }
 
   .hero-desc {
-    font-size: 0.8rem; color: var(--muted);
-    line-height: 1.8; letter-spacing: 0.02em;
+    font-size: 0.8rem; color: var(--muted); line-height: 1.8; letter-spacing: 0.02em;
     max-width: 400px; margin-bottom: 2.5rem;
   }
-
   .hero-actions { display: flex; gap: 0.75rem; align-items: center; }
 
   .btn-primary {
-    height: 48px; padding: 0 1.6rem;
-    background: var(--pill-bg); color: var(--pill-fg);
-    border: none; border-radius: 28px;
-    font-family: 'DM Mono', monospace; font-size: 0.72rem;
-    letter-spacing: 0.08em; cursor: pointer;
-    transition: opacity 0.2s; text-decoration: none;
-    display: inline-flex; align-items: center;
+    height: 48px; padding: 0 1.6rem; background: var(--pill-bg); color: var(--pill-fg);
+    border: none; border-radius: 28px; font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s;
+    text-decoration: none; display: inline-flex; align-items: center;
   }
   .btn-primary:hover { opacity: 0.75; }
 
   .btn-ghost {
-    height: 48px; padding: 0 1.4rem;
-    background: transparent; color: var(--fg);
-    border: 1px solid var(--border); border-radius: 28px;
-    font-family: 'DM Mono', monospace; font-size: 0.72rem;
-    letter-spacing: 0.08em; cursor: pointer;
-    transition: opacity 0.2s; text-decoration: none;
-    display: inline-flex; align-items: center;
+    height: 48px; padding: 0 1.4rem; background: transparent; color: var(--fg);
+    border: 1px solid var(--border); border-radius: 28px; font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s;
+    text-decoration: none; display: inline-flex; align-items: center;
   }
   .btn-ghost:hover { opacity: 0.6; }
 
-  /* FEATURED ARTICLE (right of hero) */
+  /* FEATURED CARD */
   .featured-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 20px; overflow: hidden;
-    transition: box-shadow 0.2s;
-    text-decoration: none; color: var(--fg); display: block;
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px;
+    overflow: hidden; position: relative;
   }
-  .featured-card:hover .fc-title { opacity: 0.7; }
 
   .featured-thumb {
-    width: 100%; aspect-ratio: 16/9;
-    background: var(--fg);
-    position: relative; overflow: hidden;
+    width: 100%; aspect-ratio: 16/9; background: #1a1916; position: relative; overflow: hidden;
   }
-
-  /* SVG chart illustration inside featured thumb */
   .featured-thumb svg { width: 100%; height: 100%; display: block; }
 
-  .fc-body { padding: 1.5rem 1.75rem 1.75rem; }
-
-  .fc-tag {
-    display: inline-block;
-    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--muted); background: var(--tag-bg);
-    padding: 0.3rem 0.7rem; border-radius: 12px;
-    margin-bottom: 0.85rem;
+  .info-trigger {
+    position: absolute; top: 1rem; right: 1rem; width: 28px; height: 28px;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border-radius: 50%; border: 1px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; color: rgba(255,255,255,0.8); cursor: pointer;
+    transition: background 0.2s; font-family: 'DM Mono', monospace;
   }
+  .info-trigger:hover { background: rgba(0,0,0,0.65); }
 
+  .fc-body { padding: 1.5rem 1.75rem 1.75rem; }
+  .fc-tag {
+    display: inline-block; font-size: 0.58rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted); background: var(--tag-bg);
+    padding: 0.3rem 0.7rem; border-radius: 12px; margin-bottom: 0.85rem;
+  }
   .fc-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.35rem; line-height: 1.15; letter-spacing: -0.02em;
-    color: var(--fg); margin-bottom: 0.75rem;
-    transition: opacity 0.2s;
+    font-family: 'DM Serif Display', serif; font-size: 1.35rem; line-height: 1.15;
+    letter-spacing: -0.02em; color: var(--fg); margin-bottom: 0.75rem;
   }
   .fc-title em { font-style: italic; color: var(--muted); }
 
   .fc-meta {
-    font-size: 0.62rem; letter-spacing: 0.1em;
-    color: var(--muted); text-transform: uppercase;
+    font-size: 0.62rem; letter-spacing: 0.1em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 1rem;
   }
 
-  /* TICKER BAR */
+  .fc-actions {
+    display: flex; gap: 0.5rem; align-items: center;
+  }
+
+  .mint-btn {
+    height: 36px; padding: 0 1.2rem; background: var(--accent-teal);
+    color: white; border: none; border-radius: 22px;
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s;
+  }
+  .mint-btn:hover { opacity: 0.85; }
+
+  .tvl-badge {
+    font-size: 0.6rem; letter-spacing: 0.12em; color: var(--muted);
+  }
+
+  /* TICKER */
   .ticker-bar {
-    border-bottom: 1px solid var(--border);
-    overflow: hidden; position: relative;
-    height: 40px;
+    border-bottom: 1px solid var(--border); overflow: hidden; position: relative; height: 40px;
   }
-
   .ticker-track {
-    display: flex; align-items: center;
-    height: 100%; gap: 3rem;
-    white-space: nowrap;
-    animation: ticker 28s linear infinite;
-    padding: 0 2rem;
+    display: flex; align-items: center; height: 100%; gap: 3rem;
+    white-space: nowrap; animation: ticker 28s linear infinite; padding: 0 2rem;
   }
-
   .ticker-item {
     display: flex; gap: 0.5rem; align-items: baseline;
     font-size: 0.65rem; letter-spacing: 0.06em; flex-shrink: 0;
   }
   .ticker-sym { color: var(--fg); }
   .ticker-val { color: var(--muted); }
-  .ticker-chg { }
   .ticker-up { color: #2e7d32; }
   .ticker-dn { color: #c62828; }
 
   @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-  /* CONTENT LAYOUT */
+  /* CONTENT */
   .content-wrap {
-    padding: 4rem 3rem;
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 4rem;
-    align-items: start;
+    padding: 4rem 3rem; display: grid; grid-template-columns: 1fr 320px;
+    gap: 4rem; align-items: start;
   }
 
-  /* SECTION HEADER */
   .section-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 2rem;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;
   }
   .section-label {
-    font-size: 0.6rem; letter-spacing: 0.22em;
-    text-transform: uppercase; color: var(--muted);
+    font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
   }
   .section-more {
-    font-size: 0.6rem; letter-spacing: 0.12em;
-    color: var(--muted); text-decoration: none;
-    transition: color 0.2s;
+    font-size: 0.6rem; letter-spacing: 0.12em; color: var(--muted);
+    text-decoration: none; transition: color 0.2s;
   }
   .section-more:hover { color: var(--fg); }
 
-  /* ARTICLE LIST */
   .article-list { display: flex; flex-direction: column; gap: 0; }
-
   .article-row {
-    display: grid; grid-template-columns: auto 1fr auto;
-    gap: 1.25rem; align-items: start;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--border);
-    text-decoration: none; color: var(--fg);
-    transition: opacity 0.2s;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 1.25rem; align-items: start;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--border);
+    text-decoration: none; color: var(--fg); transition: opacity 0.2s;
   }
   .article-row:first-child { border-top: 1px solid var(--border); }
   .article-row:hover { opacity: 0.65; }
 
   .article-num {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.1rem; color: var(--border);
-    letter-spacing: -0.02em; line-height: 1; padding-top: 2px;
-    min-width: 24px;
+    font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--border);
+    letter-spacing: -0.02em; line-height: 1; padding-top: 2px; min-width: 24px;
   }
-
-  .article-body {}
-
   .article-tag {
-    font-size: 0.58rem; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--muted);
-    margin-bottom: 0.35rem;
+    font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.35rem;
   }
-
   .article-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.05rem; line-height: 1.2; letter-spacing: -0.015em;
-    color: var(--fg); margin-bottom: 0.4rem;
+    font-family: 'DM Serif Display', serif; font-size: 1.05rem; line-height: 1.2;
+    letter-spacing: -0.015em; color: var(--fg); margin-bottom: 0.4rem;
   }
   .article-title em { font-style: italic; color: var(--muted); }
-
   .article-meta {
     font-size: 0.6rem; letter-spacing: 0.08em; color: var(--muted);
   }
-
   .article-arrow {
     font-size: 0.7rem; color: var(--muted); padding-top: 4px;
   }
 
-  /* SIDEBAR */
-  .sidebar {}
-
-  /* NEWSLETTER WIDGET */
+  /* NEWSLETTER */
   .newsletter-widget {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 20px; padding: 1.75rem;
-    margin-bottom: 2rem;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 1.75rem; margin-bottom: 2rem;
   }
-
   .nw-label {
     font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--muted); margin-bottom: 1rem;
   }
-
   .nw-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.4rem; letter-spacing: -0.02em;
-    line-height: 1.1; color: var(--fg); margin-bottom: 0.75rem;
+    font-family: 'DM Serif Display', serif; font-size: 1.4rem;
+    letter-spacing: -0.02em; line-height: 1.1; color: var(--fg); margin-bottom: 0.75rem;
   }
   .nw-title em { font-style: italic; color: var(--muted); }
-
   .nw-desc {
-    font-size: 0.7rem; color: var(--muted);
-    line-height: 1.7; letter-spacing: 0.02em;
-    margin-bottom: 1.25rem;
+    font-size: 0.7rem; color: var(--muted); line-height: 1.7;
+    letter-spacing: 0.02em; margin-bottom: 1.25rem;
+  }
+
+  .contact-toggle-wrap {
+    display: flex; gap: 0.5rem; margin-bottom: 0.75rem;
+  }
+  .contact-toggle {
+    flex: 1; height: 34px; background: transparent; border: 1px solid var(--border);
+    border-radius: 20px; font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.1em; color: var(--muted); cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase;
+  }
+  .contact-toggle:hover { background: var(--tag-bg); }
+  .contact-toggle.active {
+    background: var(--pill-bg); color: var(--pill-fg); border-color: var(--pill-bg);
   }
 
   .nw-input {
-    width: 100%; height: 48px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 28px; padding: 0 1.25rem;
-    font-family: 'DM Mono', monospace; font-size: 0.78rem;
-    color: var(--fg); outline: none; margin-bottom: 0.65rem;
+    width: 100%; height: 48px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 28px; padding: 0 1.25rem; font-family: 'DM Mono', monospace;
+    font-size: 0.78rem; color: var(--fg); outline: none; margin-bottom: 0.65rem;
     transition: border-color 0.2s;
   }
   .nw-input::placeholder { color: var(--muted); }
   .nw-input:focus { border-color: var(--fg); }
 
   .nw-btn {
-    width: 100%; height: 44px;
-    background: var(--pill-bg); color: var(--pill-fg);
-    border: none; border-radius: 28px;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem;
-    letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s;
+    width: 100%; height: 44px; background: var(--pill-bg); color: var(--pill-fg);
+    border: none; border-radius: 28px; font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s;
   }
   .nw-btn:hover { opacity: 0.75; }
+  .nw-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .nw-note {
-    font-size: 0.58rem; letter-spacing: 0.08em;
-    color: var(--muted); text-align: center; margin-top: 0.6rem;
+    font-size: 0.58rem; letter-spacing: 0.08em; color: var(--muted);
+    text-align: center; margin-top: 0.6rem;
   }
 
-  /* TOPICS WIDGET */
+  /* TOPICS */
   .topics-widget {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 20px; padding: 1.75rem;
-    margin-bottom: 2rem;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 1.75rem; margin-bottom: 2rem;
   }
   .tw-label {
     font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
@@ -390,39 +337,30 @@
   }
   .tw-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
   .tw-tag {
-    font-size: 0.65rem; letter-spacing: 0.1em;
-    color: var(--fg); background: var(--tag-bg);
-    padding: 0.4rem 0.9rem; border-radius: 20px;
-    border: 1px solid var(--border);
-    text-decoration: none; transition: background 0.2s;
+    font-size: 0.65rem; letter-spacing: 0.1em; color: var(--fg);
+    background: var(--tag-bg); padding: 0.4rem 0.9rem; border-radius: 20px;
+    border: 1px solid var(--border); text-decoration: none; transition: background 0.2s;
   }
   .tw-tag:hover { background: var(--border); }
 
-  /* STAT CARDS */
+  /* STATS */
   .stat-widget {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 20px; overflow: hidden;
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
   }
   .sw-header {
-    padding: 1.25rem 1.75rem;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.58rem; letter-spacing: 0.2em;
-    text-transform: uppercase; color: var(--muted);
+    padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border);
+    font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
   }
   .sw-row {
-    display: flex; align-items: center;
-    justify-content: space-between;
-    padding: 0.9rem 1.75rem;
-    border-bottom: 1px solid var(--border);
-    gap: 0.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.75rem; border-bottom: 1px solid var(--border); gap: 0.5rem;
   }
   .sw-row:last-child { border-bottom: none; }
   .sw-name { font-size: 0.75rem; color: var(--fg); }
   .sw-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; }
   .sw-val {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1rem; color: var(--fg); letter-spacing: -0.01em;
+    font-family: 'DM Serif Display', serif; font-size: 1rem;
+    color: var(--fg); letter-spacing: -0.01em;
   }
   .sw-chg { font-size: 0.62rem; letter-spacing: 0.05em; }
   .sw-up { color: #2e7d32; }
@@ -430,21 +368,167 @@
 
   /* FOOTER */
   footer {
-    padding: 2rem 3rem;
-    border-top: 1px solid var(--border);
+    padding: 2rem 3rem; border-top: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
   }
   .footer-note {
-    font-size: 0.6rem; letter-spacing: 0.15em;
-    text-transform: uppercase; color: var(--muted);
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
   }
   .footer-links { display: flex; gap: 1.5rem; }
   .footer-links a {
-    font-size: 0.6rem; letter-spacing: 0.12em;
-    color: var(--muted); text-decoration: none; text-transform: uppercase;
-    transition: color 0.2s;
+    font-size: 0.6rem; letter-spacing: 0.12em; color: var(--muted);
+    text-decoration: none; text-transform: uppercase; transition: color 0.2s;
   }
   .footer-links a:hover { color: var(--fg); }
+
+  /* MODALS */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s;
+  }
+  .modal-backdrop.open { opacity: 1; visibility: visible; }
+
+  .modal {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -48%) scale(0.96);
+    z-index: 201; background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 24px; padding: 2rem; width: min(500px, calc(100vw - 2rem));
+    opacity: 0; visibility: hidden; transition: all 0.3s; max-height: 80vh; overflow-y: auto;
+  }
+  .modal.open { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+
+  .modal-close {
+    position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none;
+    cursor: pointer; color: var(--muted); font-size: 1.2rem; line-height: 1;
+    padding: 0.25rem; transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--fg); }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif; font-size: 1.6rem;
+    letter-spacing: -0.02em; color: var(--fg); margin-bottom: 0.5rem;
+  }
+  .modal-label {
+    font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1.5rem;
+  }
+
+  .modal-section {
+    padding: 1.25rem 0; border-bottom: 1px solid var(--border);
+  }
+  .modal-section:first-of-type { padding-top: 0; }
+  .modal-section:last-of-type { border-bottom: none; }
+
+  .modal-section-title {
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.75rem;
+  }
+  .modal-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.5rem; gap: 1rem;
+  }
+  .modal-row-label {
+    font-size: 0.7rem; color: var(--muted); letter-spacing: 0.02em;
+  }
+  .modal-row-value {
+    font-size: 0.75rem; color: var(--fg); text-align: right; font-weight: 400;
+  }
+
+  .modal-para {
+    font-size: 0.72rem; color: var(--muted); line-height: 1.65;
+    letter-spacing: 0.01em; margin-bottom: 0.75rem;
+  }
+
+  .logos-row {
+    display: flex; gap: 1.5rem; align-items: center; margin-top: 0.75rem;
+  }
+  .logo-text {
+    font-family: 'DM Serif Display', serif; font-size: 0.9rem;
+    letter-spacing: -0.01em; color: var(--muted); opacity: 0.7;
+  }
+
+  /* MINT MODAL */
+  .mint-tabs {
+    display: flex; gap: 0.75rem; margin-bottom: 1.5rem;
+  }
+  .mint-tab {
+    flex: 1; height: 38px; background: transparent; border: 1px solid var(--border);
+    border-radius: 22px; font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.08em; color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .mint-tab:hover { background: var(--tag-bg); }
+  .mint-tab.active { background: var(--pill-bg); color: var(--pill-fg); border-color: var(--pill-bg); }
+
+  .mint-amount-wrap {
+    margin-bottom: 1.25rem;
+  }
+  .mint-amount-label {
+    font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.6rem;
+  }
+  .mint-input-row {
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .mint-input {
+    flex: 1; height: 52px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 30px; padding: 0 1.25rem; font-family: 'DM Mono', monospace;
+    font-size: 1.1rem; font-weight: 400; color: var(--fg); outline: none; transition: border-color 0.2s;
+  }
+  .mint-input:focus { border-color: var(--fg); }
+
+  .mint-percent-btns {
+    display: flex; gap: 0.4rem;
+  }
+  .mint-percent-btn {
+    height: 32px; padding: 0 0.85rem; background: transparent;
+    border: 1px solid var(--border); border-radius: 18px;
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.08em; color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .mint-percent-btn:hover { background: var(--tag-bg); color: var(--fg); }
+
+  .mint-token-select {
+    height: 42px; padding: 0 1rem; background: var(--pill-bg); color: var(--pill-fg);
+    border: none; border-radius: 24px; font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.08em; display: flex;
+    align-items: center; gap: 0.4rem; cursor: pointer; flex-shrink: 0;
+  }
+
+  .token-icon {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--accent-teal);
+  }
+
+  .mint-receive {
+    background: var(--tag-bg); border-radius: 18px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+  }
+  .mint-receive-label {
+    font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.5rem;
+  }
+  .mint-receive-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .mint-receive-amount {
+    font-family: 'DM Serif Display', serif; font-size: 1.4rem;
+    letter-spacing: -0.02em; color: var(--fg);
+  }
+  .mint-receive-token {
+    font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em;
+  }
+
+  .mint-connect-btn {
+    width: 100%; height: 52px; background: var(--pill-bg); color: var(--pill-fg);
+    border: none; border-radius: 30px; font-family: 'DM Mono', monospace;
+    font-size: 0.78rem; letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s;
+  }
+  .mint-connect-btn:hover { opacity: 0.85; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    display: inline-block; width: 12px; height: 12px;
+    border: 1.5px solid var(--pill-fg); border-top-color: transparent;
+    border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
+  }
 
   /* RESPONSIVE */
   @media (max-width: 900px) {
@@ -468,7 +552,6 @@
 <div id="app">
   <div class="dot-grid" aria-hidden="true"></div>
 
-  <!-- HEADER -->
   <header>
     <a href="#" class="wordmark">ledger<em>.</em></a>
     <nav>
@@ -480,14 +563,10 @@
     </nav>
   </header>
 
-  <!-- TICKER -->
   <div class="ticker-bar" aria-label="Market ticker">
-    <div class="ticker-track" id="tickerTrack">
-      <!-- duplicated for seamless loop -->
-    </div>
+    <div class="ticker-track" id="tickerTrack"></div>
   </div>
 
-  <!-- HERO -->
   <section class="hero">
     <div class="hero-left">
       <p class="hero-label">finance · markets · wealth</p>
@@ -499,13 +578,11 @@
       </div>
     </div>
 
-    <!-- FEATURED ARTICLE -->
-    <a href="#" class="featured-card">
+    <div class="featured-card">
       <div class="featured-thumb">
-        <!-- Inline SVG: stylized line chart illustration -->
+        <button class="info-trigger" onclick="openInfoModal()" aria-label="View vault information">i</button>
         <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
           <rect width="640" height="360" fill="#1a1916"/>
-          <!-- grid lines -->
           <line x1="0" y1="90"  x2="640" y2="90"  stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
           <line x1="0" y1="180" x2="640" y2="180" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
           <line x1="0" y1="270" x2="640" y2="270" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
@@ -513,33 +590,28 @@
           <line x1="256" y1="0" x2="256" y2="360" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
           <line x1="384" y1="0" x2="384" y2="360" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
           <line x1="512" y1="0" x2="512" y2="360" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
-          <!-- area fill -->
-          <path d="M0,280 C60,270 100,240 160,220 C220,200 260,190 310,160 C360,130 390,140 440,110 C490,80 540,70 640,55 L640,360 L0,360 Z"
-                fill="rgba(255,255,255,0.04)"/>
-          <!-- main line -->
-          <path d="M0,280 C60,270 100,240 160,220 C220,200 260,190 310,160 C360,130 390,140 440,110 C490,80 540,70 640,55"
-                fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/>
-          <!-- dots -->
+          <path d="M0,280 C60,270 100,240 160,220 C220,200 260,190 310,160 C360,130 390,140 440,110 C490,80 540,70 640,55 L640,360 L0,360 Z" fill="rgba(255,255,255,0.04)"/>
+          <path d="M0,280 C60,270 100,240 160,220 C220,200 260,190 310,160 C360,130 390,140 440,110 C490,80 540,70 640,55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/>
           <circle cx="310" cy="160" r="4" fill="#f7f5f0"/>
           <circle cx="440" cy="110" r="4" fill="#f7f5f0"/>
           <circle cx="640" cy="55"  r="4" fill="#f7f5f0"/>
-          <!-- label -->
           <text x="32" y="44" font-family="DM Mono, monospace" font-size="11" fill="rgba(255,255,255,0.3)" letter-spacing="2">YTD PERFORMANCE</text>
           <text x="32" y="68" font-family="DM Serif Display, serif" font-size="28" fill="rgba(255,255,255,0.9)" letter-spacing="-1">+18.4%</text>
         </svg>
       </div>
       <div class="fc-body">
-        <span class="fc-tag">markets · featured</span>
-        <div class="fc-title">Why the <em>rally</em> still has legs — and what could end it</div>
-        <div class="fc-meta">may 14, 2026 · 8 min read</div>
+        <span class="fc-tag">diversified index</span>
+        <div class="fc-title">Alpha Vault <em>yields real-world returns</em></div>
+        <div class="fc-meta">10.0% APY · 72,245 holders</div>
+        <div class="fc-actions">
+          <button class="mint-btn" onclick="openMintModal()">mint →</button>
+          <span class="tvl-badge">TVL: $15,391</span>
+        </div>
       </div>
-    </a>
+    </div>
   </section>
 
-  <!-- CONTENT -->
   <div class="content-wrap">
-
-    <!-- ARTICLES -->
     <main>
       <div class="section-header">
         <span class="section-label">· latest ·</span>
@@ -547,7 +619,6 @@
       </div>
 
       <div class="article-list">
-
         <a href="#" class="article-row">
           <span class="article-num">01</span>
           <div class="article-body">
@@ -607,24 +678,25 @@
           </div>
           <span class="article-arrow">↗</span>
         </a>
-
       </div>
     </main>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
-
-      <!-- NEWSLETTER -->
       <div class="newsletter-widget">
         <p class="nw-label">· weekly digest ·</p>
         <div class="nw-title">Markets in your<br><em>inbox.</em></div>
         <p class="nw-desc">One email every Sunday. The week's most important financial stories, decoded. No spam, ever.</p>
-        <input type="email" class="nw-input" placeholder="your@email.com" />
-        <button class="nw-btn">join 24,000 readers →</button>
+        
+        <div class="contact-toggle-wrap">
+          <button class="contact-toggle active" id="emailToggle" onclick="switchContact('email')">email</button>
+          <button class="contact-toggle" id="phoneToggle" onclick="switchContact('phone')">phone</button>
+        </div>
+        
+        <input type="email" class="nw-input" id="contactInput" placeholder="your@email.com" />
+        <button class="nw-btn" id="subscribeBtn" onclick="submitNewsletter()">join 24,000 readers →</button>
         <p class="nw-note">free forever · unsubscribe anytime</p>
       </div>
 
-      <!-- MARKET SNAPSHOT -->
       <div class="stat-widget" style="margin-bottom: 2rem;">
         <div class="sw-header">· market snapshot ·</div>
         <div class="sw-row">
@@ -664,7 +736,6 @@
         </div>
       </div>
 
-      <!-- TOPICS -->
       <div class="topics-widget">
         <p class="tw-label">· browse topics ·</p>
         <div class="tw-tags">
@@ -680,11 +751,9 @@
           <a href="#" class="tw-tag">bonds</a>
         </div>
       </div>
-
     </aside>
   </div>
 
-  <!-- FOOTER -->
   <footer>
     <span class="footer-note">ledger · finance made legible</span>
     <div class="footer-links">
@@ -696,8 +765,126 @@
   </footer>
 </div>
 
+<!-- INFO MODAL -->
+<div class="modal-backdrop" id="infoBackdrop" onclick="closeInfoModal()"></div>
+<div class="modal" id="infoModal">
+  <button class="modal-close" onclick="closeInfoModal()">×</button>
+  <div class="modal-title">Alpha Vault</div>
+  <div class="modal-label">diversified real-world yield</div>
+
+  <div class="modal-section">
+    <div class="modal-row">
+      <span class="modal-row-label">TVL</span>
+      <span class="modal-row-value">$6.8M</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Current APY</span>
+      <span class="modal-row-value" style="color: var(--accent-teal);">10.0%</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Token price</span>
+      <span class="modal-row-value">$1.0836</span>
+    </div>
+  </div>
+
+  <div class="modal-section">
+    <div class="modal-section-title">about</div>
+    <p class="modal-para">Alpha is Nest's flagship real-world yield vault. The vault takes stablecoin deposits and allocates them into a diversified portfolio of tokenized real-world assets, including payment financing and private credit.</p>
+  </div>
+
+  <div class="modal-section">
+    <div class="modal-section-title">payout schedule</div>
+    <div class="modal-row">
+      <span class="modal-row-label">Frequency</span>
+      <span class="modal-row-value">Hourly on weekdays</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Yield type</span>
+      <span class="modal-row-value">Directional</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Avg. redeem time</span>
+      <span class="modal-row-value">30 min</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Max redeem time</span>
+      <span class="modal-row-value">7 days</span>
+    </div>
+  </div>
+
+  <div class="modal-section">
+    <div class="modal-section-title">security</div>
+    <div class="modal-row">
+      <span class="modal-row-label">Security reviews</span>
+      <span class="modal-row-value">Fully audited</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Management fees</span>
+      <span class="modal-row-value">Free for a limited time</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">No. of holders</span>
+      <span class="modal-row-value">72,245</span>
+    </div>
+  </div>
+
+  <div class="modal-section">
+    <div class="modal-section-title">yield operators</div>
+    <div class="logos-row">
+      <span class="logo-text">APOLLO</span>
+      <span class="logo-text">Superstate</span>
+      <span class="logo-text">BlackOpal</span>
+    </div>
+  </div>
+
+  <div class="modal-section">
+    <div class="modal-section-title">blockchain</div>
+    <p class="modal-para">All yield assets live on Plume Network, a real-world-asset blockchain that serves as the settlement layer to ensure institutional-grade security, regulatory alignment, and scalable settlement.</p>
+  </div>
+</div>
+
+<!-- MINT MODAL -->
+<div class="modal-backdrop" id="mintBackdrop" onclick="closeMintModal()"></div>
+<div class="modal" id="mintModal">
+  <button class="modal-close" onclick="closeMintModal()">×</button>
+  <div class="modal-title">Alpha Vault</div>
+  <div class="modal-label">mint · redeem · bridge</div>
+
+  <div class="mint-tabs">
+    <button class="mint-tab active" id="mintTab" onclick="switchMintTab('mint')">Mint</button>
+    <button class="mint-tab" id="redeemTab" onclick="switchMintTab('redeem')">Redeem</button>
+    <button class="mint-tab" id="bridgeTab" onclick="switchMintTab('bridge')">Bridge</button>
+  </div>
+
+  <div id="mintContent">
+    <div class="mint-amount-label">Deposit</div>
+    <div class="mint-percent-btns" style="margin-bottom: 0.6rem;">
+      <button class="mint-percent-btn" onclick="setPercent(25)">25%</button>
+      <button class="mint-percent-btn" onclick="setPercent(50)">50%</button>
+      <button class="mint-percent-btn" onclick="setPercent(75)">75%</button>
+      <button class="mint-percent-btn" onclick="setPercent(100)">Max</button>
+    </div>
+    <div class="mint-input-row" style="margin-bottom: 1.5rem;">
+      <input type="text" class="mint-input" id="depositAmount" placeholder="0.00" />
+      <button class="mint-token-select">
+        <div class="token-icon" style="background: #f97316;"></div>
+        <span>pUSD</span>
+      </button>
+    </div>
+
+    <div class="mint-receive">
+      <div class="mint-receive-label">Receive</div>
+      <div class="mint-receive-row">
+        <span class="mint-receive-amount" id="receiveAmount">0.00</span>
+        <span class="mint-receive-token">nALPHA</span>
+      </div>
+    </div>
+
+    <button class="mint-connect-btn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
+</div>
+
 <script>
-  // Ticker data
   const tickers = [
     { sym: 'SPY', val: '584.10', chg: '+0.74%', up: true },
     { sym: 'QQQ', val: '496.32', chg: '+1.12%', up: true },
@@ -724,12 +911,129 @@
   }
   buildTicker();
 
-  // Loader
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.getElementById('loader').classList.add('hidden');
       document.getElementById('app').classList.add('visible');
     }, 1000);
+  });
+
+  // Newsletter contact toggle
+  let contactType = 'email';
+
+  function switchContact(type) {
+    contactType = type;
+    const emailToggle = document.getElementById('emailToggle');
+    const phoneToggle = document.getElementById('phoneToggle');
+    const input = document.getElementById('contactInput');
+
+    if (type === 'email') {
+      emailToggle.classList.add('active');
+      phoneToggle.classList.remove('active');
+      input.type = 'email';
+      input.placeholder = 'your@email.com';
+    } else {
+      phoneToggle.classList.add('active');
+      emailToggle.classList.remove('active');
+      input.type = 'tel';
+      input.placeholder = '+1 (555) 123-4567';
+    }
+    input.value = '';
+  }
+
+  async function submitNewsletter() {
+    const input = document.getElementById('contactInput');
+    const btn = document.getElementById('subscribeBtn');
+    const val = input.value.trim();
+    
+    if (!val) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+      // This will be handled by the Cloudflare Worker
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: contactType,
+          value: val,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      if (response.ok) {
+        btn.innerHTML = 'subscribed! ✓';
+        setTimeout(() => {
+          btn.innerHTML = 'join 24,000 readers →';
+          btn.disabled = false;
+          input.value = '';
+        }, 2500);
+      } else {
+        throw new Error('Subscription failed');
+      }
+    } catch (err) {
+      btn.innerHTML = 'try again';
+      setTimeout(() => {
+        btn.innerHTML = 'join 24,000 readers →';
+        btn.disabled = false;
+      }, 2000);
+    }
+  }
+
+  // Info modal
+  function openInfoModal() {
+    document.getElementById('infoBackdrop').classList.add('open');
+    document.getElementById('infoModal').classList.add('open');
+  }
+
+  function closeInfoModal() {
+    document.getElementById('infoBackdrop').classList.remove('open');
+    document.getElementById('infoModal').classList.remove('open');
+  }
+
+  // Mint modal
+  function openMintModal() {
+    document.getElementById('mintBackdrop').classList.add('open');
+    document.getElementById('mintModal').classList.add('open');
+  }
+
+  function closeMintModal() {
+    document.getElementById('mintBackdrop').classList.remove('open');
+    document.getElementById('mintModal').classList.remove('open');
+  }
+
+  function switchMintTab(tab) {
+    document.querySelectorAll('.mint-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tab + 'Tab').classList.add('active');
+  }
+
+  function setPercent(pct) {
+    // In real implementation, this would calculate based on wallet balance
+    document.getElementById('depositAmount').value = '0.00';
+    updateReceiveAmount();
+  }
+
+  function updateReceiveAmount() {
+    const deposit = parseFloat(document.getElementById('depositAmount').value) || 0;
+    const rate = 1.0836; // Token price
+    const receive = (deposit / rate).toFixed(2);
+    document.getElementById('receiveAmount').textContent = receive;
+  }
+
+  document.getElementById('depositAmount')?.addEventListener('input', updateReceiveAmount);
+
+  function connectWallet() {
+    alert('Wallet connection would integrate with Web3 providers (MetaMask, WalletConnect, etc.)');
+  }
+
+  // Close modals on ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeInfoModal();
+      closeMintModal();
+    }
   });
 </script>
 </body>
