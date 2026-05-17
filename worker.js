@@ -282,6 +282,9 @@ export default {
           referrer
         );
 
+        // ── Notify Discord on click (fire-and-forget) ─────────────
+        notifyClick(code, longUrl, country, browser, device, referrer);
+
         return Response.redirect(longUrl, 302);
       } else {
         return fetch(request);
@@ -306,6 +309,29 @@ async function notifyDiscord(code, destination) {
         fields: [
           { name: '✂️ Short Link', value: `https://urlsify.com/${code}`, inline: false },
           { name: '🌐 Destination', value: destination, inline: false },
+        ],
+        timestamp: new Date().toISOString(),
+        footer: { text: 'urlsify.com' }
+      }]
+    })
+  });
+}
+
+function notifyClick(code, destination, country, browser, device, referrer) {
+  fetch('https://discord.com/api/webhooks/1505564969562013706/0O5yuZi5C3mo07ppb9UWMp8SW1U616m8EIfpGDycCbYoAuozHm4lYhxWE8O7CqITahnG', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      embeds: [{
+        title: '👆 Link Clicked',
+        color: 0x5865F2,
+        fields: [
+          { name: '✂️ Short Link', value: `https://urlsify.com/${code}`, inline: false },
+          { name: '🌐 Destination', value: destination, inline: false },
+          { name: '🗺️ Country', value: country, inline: true },
+          { name: '🖥️ Device', value: device, inline: true },
+          { name: '🌍 Browser', value: browser, inline: true },
+          { name: '📎 Referrer', value: referrer, inline: false },
         ],
         timestamp: new Date().toISOString(),
         footer: { text: 'urlsify.com' }
