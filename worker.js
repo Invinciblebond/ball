@@ -29,6 +29,7 @@ export default {
       // Pages
       "/index.html",
       "/LightLanding.html",
+      "/OldLanding.html",
       "/Loading.html",
 
       // Other
