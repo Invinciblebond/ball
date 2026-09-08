@@ -1011,6 +1011,181 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
   }
+
+  /* ── ACCOUNT CTA (top-right) ─────────────────────────────
+     Purely additive: the shortener below never depends on it. */
+  .header-right { display: flex; align-items: center; gap: 0.85rem; }
+
+  .account-cta { display: flex; align-items: center; gap: 0.6rem; }
+
+  .account-copy {
+    font-size: 0.76rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .account-copy strong { color: var(--fg); font-weight: 600; }
+
+  .account-btn {
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  }
+  .account-btn:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(242,241,250,0.24);
+    transform: translateY(-1px);
+  }
+  .account-btn.primary {
+    background: linear-gradient(100deg, var(--accent-1), var(--accent-2));
+    color: var(--pill-fg);
+    border-color: transparent;
+    box-shadow: 0 6px 22px -10px var(--glow);
+  }
+  .account-btn.primary:hover { background: linear-gradient(100deg, var(--accent-2), var(--accent-1)); }
+
+  .account-avatar {
+    width: 26px; height: 26px; border-radius: 8px; flex: none;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+    color: var(--pill-fg); font-weight: 800; font-size: 0.7rem;
+  }
+
+  @media (max-width: 900px) {
+    .header-tag { display: none; }
+    .account-copy { display: none; }
+  }
+  @media (max-width: 560px) {
+    header { padding: 0.9rem 1.1rem; }
+    .account-btn { padding: 0.4rem 0.7rem; font-size: 0.72rem; }
+  }
+
+  /* ── ELSEWHERE (partner plates) ──────────────────────────── */
+  .partners {
+    width: 100%;
+    max-width: 900px;
+    margin: 4.5rem auto 0;
+    padding: 0 1.5rem;
+  }
+
+  .partners-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 0 0 13px;
+  }
+  .partners-head .sect-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #888;
+  }
+  .partners-head em {
+    font-style: normal;
+    font-size: 12px;
+    color: rgba(138,136,163,0.72);
+  }
+
+  .partner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 14px;
+  }
+
+  .plate {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    text-decoration: none;
+    transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .plate:hover { transform: translateY(-2px); }
+
+  .refraction {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,0.04), transparent 58%),
+      linear-gradient(115deg, transparent 34%, rgba(255,255,255,0.025) 46%, transparent 60%);
+  }
+
+  .promo {
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 150px;
+  }
+  .promo h3 {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 7px;
+  }
+  .promo p {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .promo .go {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .promo .go svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.2s ease;
+  }
+  .promo:hover .go svg { transform: translate(2px, -2px); }
+
+  /* shifting gradient wordmarks */
+  .text-gold, .text-blue {
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: textShift 7s linear infinite;
+  }
+  .text-gold { background-image: linear-gradient(100deg, #c8952f, #ffeaad, #f5c451, #c8952f); }
+  .text-blue { background-image: linear-gradient(100deg, #2f8fd0, #d6f6ff, #34d2ff, #2f8fd0); }
+  @keyframes textShift { to { background-position: 300% 0; } }
+
+  .plate-gold:hover { border-color: rgba(245,196,81,0.3); box-shadow: 0 14px 40px -26px rgba(245,196,81,0.75); }
+  .plate-blue:hover { border-color: rgba(52,210,255,0.3); box-shadow: 0 14px 40px -26px rgba(52,210,255,0.75); }
+
+  @media (max-width: 620px) {
+    .partners { margin-top: 3rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .text-gold, .text-blue { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -1046,12 +1221,16 @@
       </span>
       urlsify
     </a>
-    <span class="header-tag">link shortener</span>
+    <div class="header-right">
+      <span class="header-tag">link shortener</span>
+      <div class="account-cta" id="accountCta">
+        <a class="account-btn primary" href="/auth.html?mode=signup">Sign up</a>
+        <a class="account-btn" href="/auth.html?mode=login">Log in</a>
+      </div>
+    </div>
   </header>
 
   <main class="hero">
-    <p class="hero-label stagger" data-d="2">fast · free forever · no sign-up</p>
-
     <section class="stagger" data-d="3">
       <h1 class="hero-title">Long links,<br><span class="gradient-text">short stories.</span></h1>
       <h2 class="sr-only">The most minimal free link shortener on the web</h2>
@@ -1173,6 +1352,35 @@
       </div>
     </div>
   </main>
+
+  <!-- PARTNERS -->
+  <section class="partners" aria-label="Elsewhere">
+    <div class="partners-head">
+      <span class="sect-title">Elsewhere</span>
+      <em>Worth a look</em>
+    </div>
+    <div class="partner-grid">
+
+      <a class="plate promo plate-gold" href="https://cain.finance" target="_blank" rel="noopener sponsored">
+        <div class="refraction"></div>
+        <div>
+          <h3 class="text-gold">Into Solana?</h3>
+          <p>Liquidity pools paying 5% to 30%+ with public track records. Plus swaps, token information and an address scanner.</p>
+        </div>
+        <span class="go">cain.finance<svg viewBox="0 0 24 24"><path d="M14 4h6m0 0v6m0-6L10 14"/></svg></span>
+      </a>
+
+      <a class="plate promo plate-blue" href="https://utopoly.com" target="_blank" rel="noopener sponsored">
+        <div class="refraction"></div>
+        <div>
+          <h3 class="text-blue">Tracking your fitness?</h3>
+          <p>Calories, cycles, body composition and micronutrients. Boards, a scheduler and a memory visualizer. Free forever.</p>
+        </div>
+        <span class="go">utopoly.com<svg viewBox="0 0 24 24"><path d="M14 4h6m0 0v6m0-6L10 14"/></svg></span>
+      </a>
+
+    </div>
+  </section>
 
   <footer>
     <span class="footer-note">no sign-up required · free forever</span>
@@ -1519,6 +1727,35 @@
       })
     });
   }, 5000);
+</script>
+<!-- Optional account layer. Loaded after everything else so the
+     shortener above is interactive immediately, with or without it. -->
+<script src="supabase-config.js" defer></script>
+<script defer>
+  /* If a session already exists, the corner becomes a dashboard link.
+     If not, nothing changes — no redirect, no prompt, no blocking. */
+  window.addEventListener('load', () => {
+    setTimeout(async () => {
+      try {
+        const sb = await window.getSupabase();
+        const { data } = await sb.auth.getSession();
+        if (!data || !data.session) return;
+
+        const email = data.session.user.email || 'account';
+        const cta = document.getElementById('accountCta');
+        if (!cta) return;
+
+        cta.innerHTML =
+          '<span class="account-copy">Signed in as <strong>' +
+            email.replace(/[&<>"]/g, '') + '</strong></span>' +
+          '<a class="account-btn primary" href="/dashboard.html">Dashboard →</a>' +
+          '<span class="account-avatar" aria-hidden="true">' +
+            email.slice(0, 1).toUpperCase() + '</span>';
+      } catch {
+        /* offline or blocked — the free shortener carries on regardless */
+      }
+    }, 1200);
+  });
 </script>
 </body>
 </html>

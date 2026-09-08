@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in · Urlsify</title>
+<meta name="description" content="Create a free Urlsify account for mass link creation, a link library, and campaign analytics. The shortener itself stays free and account-free.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://urlsify.com/auth.html">
+<link rel="icon" type="image/jpeg" href="https://i.ibb.co/FkybQ7DK/favicon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="bg-scene" aria-hidden="true">
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+  <div class="grid-overlay"></div>
+  <div class="noise"></div>
+</div>
+
+<a class="auth-back" href="/">← back to the shortener</a>
+
+<div class="auth-shell">
+  <div class="auth-card">
+
+    <div class="auth-head">
+      <a class="wordmark" href="/">
+        <span class="logo-mark">
+          <svg viewBox="0 0 24 24">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </span>
+        urlsify
+      </a>
+      <h1 class="auth-title" id="authTitle">Welcome back</h1>
+      <p class="auth-sub" id="authSub">Sign in for mass link creation and your link library.</p>
+    </div>
+
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab active" id="tabLogin" role="tab" aria-selected="true" onclick="setMode('login')">Log in</button>
+      <button class="auth-tab" id="tabSignup" role="tab" aria-selected="false" onclick="setMode('signup')">Sign up</button>
+    </div>
+
+    <div class="alert alert-error" id="authError" role="alert"></div>
+    <div class="alert alert-ok" id="authOk" role="status"></div>
+
+    <form class="auth-form" id="authForm" autocomplete="on" novalidate>
+      <div class="field">
+        <label class="field-label" for="email">Email</label>
+        <input class="input" type="email" id="email" name="email" autocomplete="email"
+               placeholder="you@example.com" required spellcheck="false" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="password">Password</label>
+        <input class="input" type="password" id="password" name="password"
+               autocomplete="current-password" placeholder="••••••••" required minlength="8" />
+        <span class="field-hint" id="pwHint" hidden>At least 8 characters.</span>
+      </div>
+
+      <button class="btn btn-primary btn-block" type="submit" id="submitBtn">Log in →</button>
+    </form>
+
+    <div class="auth-foot">
+      <button class="auth-link-btn" id="forgotBtn" onclick="sendReset()">Forgot your password?</button>
+      <div style="margin-top:0.6rem;">
+        The shortener stays <strong>free and account-free</strong> — an account only unlocks bulk tools.
+      </div>
+    </div>
+
+    <div class="auth-perk-list" id="perks" hidden>
+      <div class="auth-perk"><svg viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></svg><span>Create hundreds of links in one paste</span></div>
+      <div class="auth-perk"><svg viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></svg><span>A saved library of every link you make</span></div>
+      <div class="auth-perk"><svg viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></svg><span>Campaign tags, QR codes and CSV export</span></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script src="supabase-config.js"></script>
+<script>
+  let mode = new URLSearchParams(location.search).get('mode') === 'signup' ? 'signup' : 'login';
+  let sb = null;
+  let busy = false;
+
+  const $ = (id) => document.getElementById(id);
+
+  function toast(msg, kind) {
+    const t = document.createElement('div');
+    t.className = 'toast ' + (kind || '');
+    t.textContent = msg;
+    $('toasts').appendChild(t);
+    setTimeout(() => t.remove(), 4200);
+  }
+
+  function showError(msg) {
+    $('authOk').classList.remove('show');
+    const el = $('authError');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function showOk(msg) {
+    $('authError').classList.remove('show');
+    const el = $('authOk');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function clearAlerts() {
+    $('authError').classList.remove('show');
+    $('authOk').classList.remove('show');
+  }
+
+  function setMode(next) {
+    mode = next;
+    clearAlerts();
+    const signup = mode === 'signup';
+    $('tabLogin').classList.toggle('active', !signup);
+    $('tabSignup').classList.toggle('active', signup);
+    $('tabLogin').setAttribute('aria-selected', String(!signup));
+    $('tabSignup').setAttribute('aria-selected', String(signup));
+    $('authTitle').textContent = signup ? 'Create your account' : 'Welcome back';
+    $('authSub').textContent = signup
+      ? 'Free. Unlocks mass link creation and your library.'
+      : 'Sign in for mass link creation and your link library.';
+    $('submitBtn').textContent = signup ? 'Create account →' : 'Log in →';
+    $('password').setAttribute('autocomplete', signup ? 'new-password' : 'current-password');
+    $('pwHint').hidden = !signup;
+    $('perks').hidden = !signup;
+    $('forgotBtn').hidden = signup;
+    const url = new URL(location.href);
+    url.searchParams.set('mode', mode);
+    history.replaceState(null, '', url);
+  }
+
+  /* ── auto-login: an existing session goes straight to the dashboard ── */
+  (async function boot() {
+    setMode(mode);
+    try {
+      sb = await window.getSupabase();
+    } catch {
+      showError('Could not reach the authentication service. Try again in a moment.');
+      return;
+    }
+    const { data } = await sb.auth.getSession();
+    if (data && data.session) {
+      const next = new URLSearchParams(location.search).get('next');
+      location.replace(next && next.startsWith('/') ? next : '/dashboard.html');
+    }
+  })();
+
+  $('authForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    clearAlerts();
+
+    const email = $('email').value.trim();
+    const password = $('password').value;
+
+    if (!email || !email.includes('@')) return showError('Enter a valid email address.');
+    if (password.length < 8) return showError('Password must be at least 8 characters.');
+    if (!sb) return showError('Still connecting — try again in a second.');
+
+    busy = true;
+    const btn = $('submitBtn');
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+      if (mode === 'signup') {
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.URLSIFY_CONFIG.SITE_URL + '/dashboard.html' }
+        });
+        if (error) throw error;
+        if (data.session) {
+          location.replace('/dashboard.html');
+          return;
+        }
+        showOk('Check your inbox — confirm your email to finish signing up.');
+        $('authForm').reset();
+      } else {
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        const next = new URLSearchParams(location.search).get('next');
+        location.replace(next && next.startsWith('/') ? next : '/dashboard.html');
+        return;
+      }
+    } catch (err) {
+      showError(friendly(err));
+    } finally {
+      busy = false;
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  });
+
+  async function sendReset() {
+    clearAlerts();
+    const email = $('email').value.trim();
+    if (!email || !email.includes('@')) return showError('Enter your email above first, then tap reset.');
+    if (!sb) return showError('Still connecting — try again in a second.');
+    try {
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.URLSIFY_CONFIG.SITE_URL + '/auth.html?mode=login'
+      });
+      if (error) throw error;
+      showOk('Password reset sent. Check your inbox.');
+    } catch (err) {
+      showError(friendly(err));
+    }
+  }
+
+  function friendly(err) {
+    const m = (err && err.message ? err.message : String(err)).toLowerCase();
+    if (m.includes('invalid login')) return 'That email and password combination is not recognised.';
+    if (m.includes('already registered') || m.includes('already been registered')) return 'That email already has an account — log in instead.';
+    if (m.includes('email not confirmed')) return 'Confirm your email first — check your inbox for the link.';
+    if (m.includes('rate limit') || m.includes('too many')) return 'Too many attempts. Wait a minute and try again.';
+    if (m.includes('failed to fetch') || m.includes('networkerror')) return 'Network problem — check your connection and retry.';
+    return err && err.message ? err.message : 'Something went wrong. Try again.';
+  }
+</script>
+</body>
+</html>

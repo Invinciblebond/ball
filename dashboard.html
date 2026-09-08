@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Urlsify</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/jpeg" href="https://i.ibb.co/FkybQ7DK/favicon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="bg-scene" aria-hidden="true">
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+  <div class="grid-overlay"></div>
+  <div class="noise"></div>
+</div>
+
+<div class="dash">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <a class="wordmark" href="/">
+        <span class="logo-mark">
+          <svg viewBox="0 0 24 24">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </span>
+        urlsify
+      </a>
+      <span class="sidebar-tag">pro</span>
+    </div>
+
+    <nav class="nav-group">
+      <div class="nav-group-label">Workspace</div>
+      <button class="nav-item active" data-view="overview">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" data-view="links">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        My links
+        <span class="nav-count" id="navLinkCount">0</span>
+      </button>
+      <button class="nav-item" data-view="mass">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><path d="M3 3h2M19 3h2M3 21h2M19 21h2"/></svg>
+        Mass create
+      </button>
+      <button class="nav-item" data-view="analytics">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+        Analytics
+      </button>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-group-label">Account</div>
+      <button class="nav-item" data-view="settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.05.05a2 2 0 1 1-2.83 2.83l-.05-.05a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.28-2.9l-.05-.05a2 2 0 1 1 2.83-2.83l.05.05A1.7 1.7 0 0 0 10 3a2 2 0 1 1 4 0a1.7 1.7 0 0 0 2.9 1.28l.05-.05a2 2 0 1 1 2.83 2.83l-.05.05A1.7 1.7 0 0 0 21 10a2 2 0 1 1 0 4z"/></svg>
+        Settings
+      </button>
+      <a class="nav-item" href="/">
+        <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+        Free shortener
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button class="sidebar-user" id="userBtn" onclick="go('settings')">
+        <span class="avatar" id="avatar">–</span>
+        <span class="sidebar-user-meta">
+          <span class="sidebar-user-name" id="userEmail">loading…</span>
+          <span class="sidebar-user-plan">Free account</span>
+        </span>
+      </button>
+    </div>
+  </aside>
+  <div class="sidebar-scrim" id="scrim" onclick="toggleSidebar(false)"></div>
+
+  <!-- ══ MAIN ══ -->
+  <div class="dash-main">
+
+    <header class="topbar">
+      <button class="topbar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="crumb">
+        <span class="crumb-title" id="crumbTitle">Overview</span>
+        <span class="crumb-sub" id="crumbSub">your links at a glance</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input class="input" type="search" id="globalSearch" placeholder="search your links…" aria-label="Search links" />
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm" onclick="go('mass')">+ Mass create</button>
+        <button class="icon-btn" onclick="signOut()" title="Sign out" aria-label="Sign out">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="dash-body">
+
+      <!-- ── OVERVIEW ── -->
+      <section class="view active" id="view-overview">
+        <div class="view-head">
+          <h1 class="view-title">Overview</h1>
+          <p class="view-desc">Everything you have created while signed in. The public shortener stays free and account-free — this is only the bulk workspace.</p>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-label">Links owned</div>
+            <div class="stat-value" id="statLinks">0</div>
+            <div class="stat-delta" id="statLinksDelta">nothing yet</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Total clicks</div>
+            <div class="stat-value" id="statClicks">0</div>
+            <div class="stat-delta">across all owned links</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Batches run</div>
+            <div class="stat-value" id="statBatches">0</div>
+            <div class="stat-delta">mass-create sessions</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Best performer</div>
+            <div class="stat-value" id="statBest" style="font-size:1.05rem;">—</div>
+            <div class="stat-delta" id="statBestClicks">no data</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <div class="card-title">Recent links</div>
+              <div class="card-sub">The last ten links created from this account.</div>
+            </div>
+            <button class="btn btn-sm" onclick="go('links')">View all →</button>
+          </div>
+          <div id="recentWrap" style="margin-top:1.1rem;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Quick shorten</div>
+          <div class="card-sub">One link, saved to your library. For hundreds at once use mass create.</div>
+          <div style="display:flex;gap:0.6rem;margin-top:1rem;flex-wrap:wrap;">
+            <input class="input" id="quickUrl" placeholder="https://example.com/a-very-long-link" style="flex:1;min-width:220px;" spellcheck="false" />
+            <input class="input input-mono" id="quickSlug" placeholder="custom-slug (optional)" style="width:210px;" spellcheck="false" maxlength="30" />
+            <select class="select" id="quickExpiry" style="width:150px;" aria-label="Link expiry">
+              <option value="31536000" selected>1 year</option>
+              <option value="3600">1 hour</option>
+              <option value="86400">24 hours</option>
+              <option value="604800">7 days</option>
+              <option value="2592000">30 days</option>
+              <option value="7776000">90 days</option>
+              <option value="63072000">2 years</option>
+            </select>
+            <button class="btn btn-primary" id="quickBtn" onclick="quickShorten()">Shorten →</button>
+          </div>
+          <div class="alert alert-error" id="quickError" style="margin-top:0.8rem;"></div>
+          <div class="alert alert-ok" id="quickOk" style="margin-top:0.8rem;"></div>
+        </div>
+      </section>
+
+      <!-- ── MY LINKS ── -->
+      <section class="view" id="view-links">
+        <div class="view-head">
+          <h1 class="view-title">My links</h1>
+          <p class="view-desc">Every link created while signed in. Edit the destination, change the expiry, refresh the click count or delete a link — all from this page.</p>
+        </div>
+
+        <div class="soon-note">
+          <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span><strong>Password-protected links coming soon</strong>, with raw text uploads.</span>
+        </div>
+
+        <div class="queue-toolbar">
+          <div class="topbar-search" style="width:230px;max-width:100%;">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input class="input" type="search" id="linksSearch" placeholder="filter links…" aria-label="Filter links" oninput="renderLinks()" />
+          </div>
+          <select class="select" id="tagFilter" style="width:180px;" onchange="renderLinks()">
+            <option value="">All campaigns</option>
+          </select>
+          <select class="select" id="linksSort" style="width:170px;" onchange="renderLinks()">
+            <option value="new">Newest first</option>
+            <option value="old">Oldest first</option>
+            <option value="clicks">Most clicks</option>
+            <option value="expiry">Expiring soonest</option>
+          </select>
+          <button class="btn btn-sm" onclick="refreshAllClicks()" id="refreshClicksBtn">Refresh all counts</button>
+          <button class="btn btn-sm" onclick="exportLinksCsv()">Export CSV</button>
+          <span class="queue-status" id="linksCount"></span>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data" id="linksTable">
+              <thead>
+                <tr>
+                  <th style="width:34px;"></th>
+                  <th>Short link</th>
+                  <th>Destination</th>
+                  <th>Campaign</th>
+                  <th style="width:120px;">Clicks</th>
+                  <th style="width:120px;">Expires</th>
+                  <th style="width:110px;">Created</th>
+                  <th style="width:96px;"></th>
+                </tr>
+              </thead>
+              <tbody id="linksBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="linksEmpty">
+            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <div class="empty-title">No links yet</div>
+            <div class="empty-desc">Run a mass create batch or use quick shorten on the overview.</div>
+            <button class="btn btn-primary btn-sm" style="margin-top:1rem;" onclick="go('mass')">Start a batch</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── MASS CREATE ── -->
+      <section class="view" id="view-mass">
+        <div class="view-head">
+          <h1 class="view-title">Mass create</h1>
+          <p class="view-desc">Paste a list, shape exactly what each short link becomes, then run the batch. Requests are spaced one second apart by default so nothing gets rate limited.</p>
+        </div>
+
+        <div class="mass-layout">
+
+          <!-- left: input + queue -->
+          <div>
+            <div class="card" style="margin-bottom:1.2rem;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:0.9rem;">
+                <div>
+                  <div class="card-title">Source list</div>
+                  <div class="card-sub" id="sourceHint">One URL per line. Blank lines and duplicates are skipped.</div>
+                </div>
+                <div class="seg" style="width:230px;">
+                  <button class="active" data-input="lines" onclick="setInputMode('lines')">Lines</button>
+                  <button data-input="csv" onclick="setInputMode('csv')">CSV</button>
+                </div>
+              </div>
+
+              <textarea class="textarea" id="bulkInput" spellcheck="false"
+                placeholder="https://example.com/page-one&#10;https://example.com/page-two&#10;https://example.com/page-three"></textarea>
+
+              <div class="counter-row" style="margin-top:0.7rem;">
+                <span id="parseCount">0 links detected</span>
+                <span>
+                  <button class="btn btn-sm btn-ghost" onclick="loadSample()">Load sample</button>
+                  <button class="btn btn-sm btn-ghost" onclick="clearInput()">Clear</button>
+                </span>
+              </div>
+            </div>
+
+            <div class="card">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                <div>
+                  <div class="card-title">Batch queue</div>
+                  <div class="card-sub">Review every final link before anything is created.</div>
+                </div>
+                <span class="pill" id="queuePill">idle</span>
+              </div>
+
+              <div class="progress-track" style="margin:1rem 0 0.9rem;">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+
+              <div class="queue-toolbar">
+                <button class="btn btn-primary btn-sm" id="runBtn" onclick="runBatch()">Run batch →</button>
+                <button class="btn btn-sm" id="pauseBtn" onclick="togglePause()" disabled>Pause</button>
+                <button class="btn btn-sm btn-danger" id="stopBtn" onclick="stopBatch()" disabled>Stop</button>
+                <button class="btn btn-sm" id="retryBtn" onclick="retryFailed()" disabled>Retry failed</button>
+                <button class="btn btn-sm" onclick="copyAllResults()">Copy results</button>
+                <button class="btn btn-sm" onclick="exportQueueCsv()">Export CSV</button>
+                <span class="queue-status" id="queueStatus">0 / 0</span>
+              </div>
+
+              <div class="table-wrap" style="margin-top:0.4rem;">
+                <div class="table-scroll">
+                  <table class="data">
+                    <thead>
+                      <tr>
+                        <th style="width:36px;">#</th>
+                        <th>Destination</th>
+                        <th>Short link</th>
+                        <th style="width:110px;">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="queueBody"></tbody>
+                  </table>
+                </div>
+                <div class="empty" id="queueEmpty">
+                  <svg class="empty-icon" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+                  <div class="empty-title">Queue is empty</div>
+                  <div class="empty-desc">Paste some URLs above — the preview builds itself as you type.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- right: controls -->
+          <div class="mass-controls">
+
+            <div class="card control-block">
+              <div>
+                <div class="card-title">Slug control</div>
+                <div class="card-sub">What the short part of every link becomes.</div>
+              </div>
+
+              <div class="seg">
+                <button class="active" data-slug="random" onclick="setSlugMode('random')">Random</button>
+                <button data-slug="pattern" onclick="setSlugMode('pattern')">Pattern</button>
+                <button data-slug="csv" onclick="setSlugMode('csv')">From CSV</button>
+              </div>
+
+              <div id="patternFields" hidden>
+                <div class="field" style="margin-bottom:0.7rem;">
+                  <label class="field-label" for="slugPrefix">Prefix</label>
+                  <input class="input input-mono" id="slugPrefix" placeholder="summer-sale" maxlength="24" spellcheck="false" oninput="reparse()" />
+                </div>
+                <div class="grid-2" style="margin-bottom:0.7rem;">
+                  <div class="field">
+                    <label class="field-label" for="slugStart">Start at</label>
+                    <input class="input input-mono" id="slugStart" type="number" value="1" min="0" oninput="reparse()" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="slugPad">Pad to</label>
+                    <input class="input input-mono" id="slugPad" type="number" value="2" min="1" max="6" oninput="reparse()" />
+                  </div>
+                </div>
+                <div class="field" style="margin-bottom:0.7rem;">
+                  <label class="field-label" for="slugSep">Separator</label>
+                  <select class="select" id="slugSep" onchange="reparse()">
+                    <option value="-">hyphen &nbsp;summer-sale-01</option>
+                    <option value="_">underscore &nbsp;summer_sale_01</option>
+                    <option value="">none &nbsp;summersale01</option>
+                  </select>
+                </div>
+                <div class="slug-preview" id="slugPreview">urlsify.com/…</div>
+              </div>
+
+              <div id="csvSlugNote" class="field-hint" hidden>
+                Column two of each CSV row is used as the slug. Rows without one fall back to a random slug.
+              </div>
+            </div>
+
+            <div class="card control-block">
+              <div>
+                <div class="card-title">Destination shaping</div>
+                <div class="card-sub">Applied to every URL in the batch before shortening.</div>
+              </div>
+
+              <label class="checkline"><input type="checkbox" id="optHttps" checked onchange="reparse()"> Add https:// when missing</label>
+              <label class="checkline"><input type="checkbox" id="optDedupe" checked onchange="reparse()"> Skip duplicate destinations</label>
+              <label class="checkline"><input type="checkbox" id="optUtm" onchange="toggleUtm()"> Append UTM parameters</label>
+
+              <div id="utmFields" hidden>
+                <div class="control-divider"></div>
+                <div class="grid-2" style="margin-bottom:0.7rem;">
+                  <div class="field">
+                    <label class="field-label" for="utmSource">Source</label>
+                    <input class="input input-mono" id="utmSource" placeholder="twitter" oninput="reparse()" spellcheck="false" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="utmMedium">Medium</label>
+                    <input class="input input-mono" id="utmMedium" placeholder="social" oninput="reparse()" spellcheck="false" />
+                  </div>
+                </div>
+                <div class="field" style="margin-bottom:0.7rem;">
+                  <label class="field-label" for="utmCampaign">Campaign</label>
+                  <input class="input input-mono" id="utmCampaign" placeholder="summer-sale" oninput="reparse()" spellcheck="false" />
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label class="field-label" for="utmTerm">Term</label>
+                    <input class="input input-mono" id="utmTerm" placeholder="optional" oninput="reparse()" spellcheck="false" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="utmContent">Content</label>
+                    <input class="input input-mono" id="utmContent" placeholder="optional" oninput="reparse()" spellcheck="false" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card control-block">
+              <div>
+                <div class="card-title">Run settings</div>
+                <div class="card-sub">Pacing and bookkeeping for the batch.</div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="delayMs">Delay between links</label>
+                <select class="select" id="delayMs">
+                  <option value="500">0.5 s — fast</option>
+                  <option value="1000" selected>1 s — recommended</option>
+                  <option value="2000">2 s — gentle</option>
+                  <option value="5000">5 s — very gentle</option>
+                </select>
+                <span class="field-hint" id="etaHint">Estimated run time: —</span>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="expiryPreset">Link expiry</label>
+                <select class="select" id="expiryPreset" onchange="onExpiryChange('expiryPreset','expiryCustom')">
+                  <option value="31536000" selected>1 year (default)</option>
+                  <option value="3600">1 hour</option>
+                  <option value="86400">24 hours</option>
+                  <option value="604800">7 days</option>
+                  <option value="2592000">30 days</option>
+                  <option value="7776000">90 days</option>
+                  <option value="63072000">2 years (max)</option>
+                  <option value="custom">Custom…</option>
+                </select>
+                <div class="grid-2" id="expiryCustom" hidden style="margin-top:0.5rem;">
+                  <input class="input input-mono" id="expiryCustomVal" type="number" min="1" value="14" aria-label="Expiry amount" />
+                  <select class="select" id="expiryCustomUnit" aria-label="Expiry unit">
+                    <option value="3600">hours</option>
+                    <option value="86400" selected>days</option>
+                    <option value="604800">weeks</option>
+                  </select>
+                </div>
+                <span class="field-hint">After this, the short link stops resolving and the slug frees up.</span>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="tagInput">Campaign tag</label>
+                <input class="input" id="tagInput" placeholder="summer-sale" spellcheck="false" maxlength="40" />
+                <span class="field-hint">Groups these links in your library and analytics.</span>
+              </div>
+
+              <label class="checkline"><input type="checkbox" id="optStopOnError"> Stop the whole batch on first error</label>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ── ANALYTICS ── -->
+      <section class="view" id="view-analytics">
+        <div class="view-head">
+          <h1 class="view-title">Analytics</h1>
+          <p class="view-desc">Aggregated across every link in your library. Pulled live from the same edge analytics the free shortener uses.</p>
+        </div>
+
+        <div class="queue-toolbar">
+          <select class="select" id="analyticsTag" style="width:190px;" onchange="renderAnalytics()">
+            <option value="">All campaigns</option>
+          </select>
+          <button class="btn btn-sm btn-primary" onclick="refreshAllClicks()">Pull latest stats</button>
+          <span class="queue-status" id="analyticsStatus"></span>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-label">Clicks</div>
+            <div class="stat-value" id="anClicks">0</div>
+            <div class="stat-delta" id="anLinks">0 links</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Avg per link</div>
+            <div class="stat-value" id="anAvg">0</div>
+            <div class="stat-delta">clicks / link</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Links with traffic</div>
+            <div class="stat-value" id="anLive">0</div>
+            <div class="stat-delta" id="anLivePct">0% of library</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div class="card-title">Top links</div>
+          <div class="card-sub">Ranked by clicks. Refresh to pull the newest counts.</div>
+          <div id="topLinks" style="margin-top:1rem;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Per-link breakdown</div>
+          <div class="card-sub">Open any link's full country, referrer, browser and device split.</div>
+          <div style="display:flex;gap:0.6rem;margin-top:1rem;flex-wrap:wrap;">
+            <input class="input input-mono" id="detailCode" placeholder="slug or full urlsify.com link" style="flex:1;min-width:220px;" spellcheck="false" />
+            <button class="btn" onclick="loadDetail()">Load →</button>
+          </div>
+          <div id="detailOut" style="margin-top:1.1rem;"></div>
+        </div>
+      </section>
+
+      <!-- ── SETTINGS ── -->
+      <section class="view" id="view-settings">
+        <div class="view-head">
+          <h1 class="view-title">Settings</h1>
+          <p class="view-desc">Account and workspace defaults.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div class="card-title">Account</div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Email</div>
+              <div class="setting-desc" id="setEmail">—</div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Member since</div>
+              <div class="setting-desc" id="setSince">—</div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Password</div>
+              <div class="setting-desc">Send a reset link to your inbox.</div>
+            </div>
+            <button class="btn btn-sm" onclick="sendPasswordReset()">Send reset</button>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Sign out</div>
+              <div class="setting-desc">Ends the session on this device.</div>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="signOut()">Sign out</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Batch defaults</div>
+          <div class="card-sub">Remembered on this device for your next mass create.</div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Default delay</div>
+              <div class="setting-desc">Spacing between link creations.</div>
+            </div>
+            <select class="select" id="defDelay" style="width:170px;" onchange="saveDefaults()">
+              <option value="500">0.5 s</option>
+              <option value="1000" selected>1 s</option>
+              <option value="2000">2 s</option>
+              <option value="5000">5 s</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Default campaign tag</div>
+              <div class="setting-desc">Pre-filled on every new batch.</div>
+            </div>
+            <input class="input" id="defTag" style="width:170px;" onchange="saveDefaults()" placeholder="none" />
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script src="supabase-config.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

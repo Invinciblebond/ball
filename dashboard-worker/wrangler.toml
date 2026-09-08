@@ -1,0 +1,29 @@
+name = "urlsifydash"
+main = "worker.js"
+compatibility_date = "2026-05-10"
+
+# Same KV namespace the shortener uses. Two workers may bind the same
+# namespace; this one only adds keys, it never changes how the
+# shortener reads the ones it already owns.
+[[kv_namespaces]]
+binding = "LINKS"
+id = "2aed9fa18b474213a970601aae8fafb7"
+
+# More specific than urlsify-worker's route, so Cloudflare sends
+# /api/dash/* here and leaves every other path to the shortener.
+# Comment this block out to stay on the workers.dev subdomain instead.
+[[routes]]
+pattern = "urlsify.com/api/dash/*"
+zone_name = "urlsify.com"
+
+[vars]
+SUPABASE_URL = "https://ytvyhkhzewnultjfpcyf.supabase.co"
+
+[observability]
+enabled = true
+
+# Optional secrets (neither is required to run):
+#   wrangler secret put DISCORD_WEBHOOK      — override the built-in webhook
+#   wrangler secret put SUPABASE_JWT_SECRET  — only for legacy HS256 projects;
+#                                              this project signs with ES256,
+#                                              verified via public JWKS.
