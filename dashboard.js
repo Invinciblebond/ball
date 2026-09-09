@@ -1082,3 +1082,77 @@ function saveDefaults() {
   updateEta();
   toast('Defaults saved', 'ok');
 }
+
+/* ══ ACCOUNT DELETION ══════════════════════════════════════
+   Guarded three ways: a typed confirmation, a native confirm(),
+   and the worker re-checking ownership of every link before it
+   removes anything. The webhook notification is sent server-side
+   from the verified token, never from this page.
+   ═══════════════════════════════════════════════════════════ */
+
+function syncDeleteBtn() {
+  const typed = ($('deleteConfirm').value || '').trim().toUpperCase();
+  $('deleteBtn').disabled = typed !== 'DELETE';
+}
+
+async function deleteAccount() {
+  const err = $('deleteError');
+  const btn = $('deleteBtn');
+  const purge = $('purgeAll').checked;
+
+  err.classList.remove('show');
+
+  if (($('deleteConfirm').value || '').trim().toUpperCase() !== 'DELETE') return;
+
+  const warning = purge
+    ? 'Delete your account and erase ALL your information from the servers?\n\n' +
+      'Your ' + links.length + ' link(s) stop working immediately, and your email and ' +
+      'login are destroyed. This cannot be undone.'
+    : 'Delete your account?\n\nYour ' + links.length + ' link(s) stop working immediately. ' +
+      'This cannot be undone.';
+
+  if (!confirm(warning)) return;
+
+  btn.disabled = true;
+  const label = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    // 1. worker: wipe the KV links, notify the operator, optionally
+    //    delete the auth record (needs a service role key configured)
+    const res = await fetch(CFG.DASH_BASE + '/account', {
+      method: 'DELETE',
+      headers: await authHeaders(),
+      body: JSON.stringify({ purge })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (data.error) throw new Error(data.error);
+
+    // 2. the library rows — RLS lets a user delete their own
+    if (dbReady) {
+      try {
+        await sb.from('links').delete().eq('user_id', user.id);
+      } catch (e) { console.warn('library cleanup failed:', e.message || e); }
+    }
+
+    // 3. this device
+    try { localStorage.removeItem(LS_KEY()); } catch {}
+    try { localStorage.removeItem('urlsify:batches'); } catch {}
+
+    const note = purge && !data.authDeleted
+      ? '\n\nYour links are gone and your erasure request has been logged — the login record ' +
+        'is removed manually within 24 hours.'
+      : '';
+
+    alert('Account deleted. ' + (data.links || 0) + ' link(s) removed.' + note);
+
+    await sb.auth.signOut();
+    location.replace('/');
+  } catch (e) {
+    err.textContent = e.message || 'Could not delete the account. Try again, or contact support.';
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+}

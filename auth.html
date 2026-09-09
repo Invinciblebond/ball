@@ -71,6 +71,9 @@
       <div style="margin-top:0.6rem;">
         The shortener stays <strong>free and account-free</strong> — an account only unlocks bulk tools.
       </div>
+      <div style="margin-top:0.5rem;">
+        <a href="/privacy">How we use your data</a>
+      </div>
     </div>
 
     <div class="auth-perk-list" id="perks" hidden>
@@ -181,11 +184,15 @@
           options: { emailRedirectTo: window.URLSIFY_CONFIG.SITE_URL + '/dashboard.html' }
         });
         if (error) throw error;
+
         if (data.session) {
+          await announceSignup();
           location.replace('/dashboard.html');
           return;
         }
-        showOk('Check your inbox — confirm your email to finish signing up.');
+
+        // only reachable if email confirmation gets re-enabled
+        showOk('Check your inbox to confirm your email, then log in.');
         $('authForm').reset();
       } else {
         const { error } = await sb.auth.signInWithPassword({ email, password });
@@ -202,6 +209,26 @@
       btn.textContent = label;
     }
   });
+
+  /* Tell the operator's webhook a new account exists. Server-side:
+     the worker reads the email from the verified token, so no webhook
+     URL or user data is exposed in this page. Never blocks signup. */
+  async function announceSignup() {
+    try {
+      const { data } = await sb.auth.getSession();
+      if (!data || !data.session) return;
+
+      await fetch(window.URLSIFY_CONFIG.DASH_BASE + '/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + data.session.access_token
+        }
+      });
+    } catch (e) {
+      console.warn('signup announce failed:', e.message || e);
+    }
+  }
 
   async function sendReset() {
     clearAlerts();

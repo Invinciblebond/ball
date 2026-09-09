@@ -533,6 +533,46 @@
             </div>
             <button class="btn btn-sm btn-danger" onclick="signOut()">Sign out</button>
           </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Data usage</div>
+              <div class="setting-desc">
+                Your email is used strictly for account coordination — signing in, password
+                resets, and replying if you open a support case.
+                <a href="/privacy" target="_blank" rel="noopener" style="color:var(--accent-2)">Read the policy →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card danger-card">
+          <div class="card-title" style="color:var(--error)">Delete account</div>
+          <div class="card-sub">
+            Removes every link you created while signed in. Those short links stop resolving
+            immediately and their slugs are freed. This cannot be undone.
+          </div>
+
+          <label class="checkline" style="margin-top:1.1rem;align-items:flex-start">
+            <input type="checkbox" id="purgeAll" style="margin-top:2px">
+            <span>
+              <strong style="font-weight:600">Also erase all my information from your servers</strong>
+              <span style="display:block;font-size:0.75rem;color:var(--muted);margin-top:0.2rem;line-height:1.5">
+                Destroys your email, password hash and account record too — not just your links.
+                Leave unticked to remove your links but keep the login.
+              </span>
+            </span>
+          </label>
+
+          <div class="field" style="margin-top:1.1rem;max-width:320px">
+            <label class="field-label" for="deleteConfirm">Type DELETE to confirm</label>
+            <input class="input input-mono" id="deleteConfirm" placeholder="DELETE"
+                   autocomplete="off" spellcheck="false" oninput="syncDeleteBtn()" />
+          </div>
+
+          <div class="alert alert-error" id="deleteError" style="margin-top:0.9rem"></div>
+
+          <button class="btn btn-danger" id="deleteBtn" style="margin-top:1rem" disabled
+                  onclick="deleteAccount()">Permanently delete my account</button>
         </div>
 
         <div class="card">

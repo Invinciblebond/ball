@@ -1,1 +1,2 @@
 git add . && git commit -m "update" && git push
+npx wrangley deploy

@@ -22,8 +22,12 @@ SUPABASE_URL = "https://ytvyhkhzewnultjfpcyf.supabase.co"
 [observability]
 enabled = true
 
-# Optional secrets (neither is required to run):
-#   wrangler secret put DISCORD_WEBHOOK      — override the built-in webhook
-#   wrangler secret put SUPABASE_JWT_SECRET  — only for legacy HS256 projects;
-#                                              this project signs with ES256,
-#                                              verified via public JWKS.
+# Secrets, set in the dashboard under Variables and Secrets:
+#   DISCORD_WEBHOOK           required — all notifications (new links,
+#                             new accounts, deletions) go to this one.
+#   SUPABASE_SERVICE_ROLE_KEY optional — lets a full-erasure request
+#                             delete the Supabase auth record itself.
+#                             Without it, erasures are flagged in the
+#                             webhook for manual removal.
+#   SUPABASE_JWT_SECRET       not needed — this project signs with
+#                             ES256, verified via the public JWKS.

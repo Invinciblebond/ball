@@ -19,6 +19,9 @@
      GET    /links            list this account's links
      PATCH  /links/:code      { url?, ttl?, tag? }
      DELETE /links/:code
+     POST   /signup          announce a new account (once per user)
+     DELETE /account         { purge? } wipe links, notify, optionally
+                             delete the Supabase auth record
    ══════════════════════════════════════════════════════════════ */
 
 const SITE = "https://urlsify.com";
@@ -54,11 +57,13 @@ export default {
     }
 
     // ── everything below is account-only ──────────────────────────
-    const userId = await getUserId(request, env);
+    const claims = await getClaims(request, env);
 
-    if (!userId) {
+    if (!claims) {
       return json({ error: "Sign in to manage links." }, 401, cors);
     }
+
+    const userId = claims.sub;
 
     try {
       if (path === "/shorten" && request.method === "POST") {
@@ -67,6 +72,14 @@ export default {
 
       if (path === "/links" && request.method === "GET") {
         return await listLinks(env, cors, userId);
+      }
+
+      if (path === "/signup" && request.method === "POST") {
+        return await announceSignup(env, cors, claims);
+      }
+
+      if (path === "/account" && request.method === "DELETE") {
+        return await deleteAccount(request, env, cors, claims);
       }
 
       if (path.startsWith("/links/")) {
@@ -266,6 +279,111 @@ async function deleteLink(env, cors, userId, code) {
   return json({ deleted: true, code }, 200, cors);
 }
 
+
+/* ══ ACCOUNT ═════════════════════════════════════════════════════
+
+   Both of these notify the operator's webhook server-side. The URL
+   lives in worker config, never in page source, and the email comes
+   from the verified JWT rather than the request body — so neither
+   can be spoofed or abused by anyone reading the site's JS.
+   ═══════════════════════════════════════════════════════════════ */
+
+async function announceSignup(env, cors, claims) {
+  const userId = claims.sub;
+  const marker = `signup:${userId}`;
+
+  // fires once per account, however many times the page calls it
+  if (await env.LINKS.get(marker)) {
+    return json({ announced: false, reason: "already recorded" }, 200, cors);
+  }
+
+  await env.LINKS.put(marker, new Date().toISOString());
+
+  await postWebhook(env, {
+    title: "🎉 New account",
+    color: 0x4ade80,
+    fields: [
+      { name: "Email", value: claims.email || "unknown", inline: false },
+      { name: "User ID", value: userId, inline: false },
+    ],
+  });
+
+  return json({ announced: true }, 200, cors);
+}
+
+async function deleteAccount(request, env, cors, claims) {
+  const userId = claims.sub;
+  const body = await request.json().catch(() => ({}));
+  const purge = body.purge === true;
+
+  // Always remove the account's links — an account that no longer
+  // exists must not leave live redirects behind.
+  const prefix = `u:${userId}:`;
+  const listed = await env.LINKS.list({ prefix, limit: 1000 });
+  const codes = listed.keys.map((k) => k.name.slice(prefix.length));
+
+  for (const code of codes) {
+    const owner = await env.LINKS.get(`owner:${code}`);
+
+    if (owner !== userId) continue; // never touch someone else's link
+
+    await Promise.all([
+      env.LINKS.delete(code),
+      env.LINKS.delete(`clicks:${code}`),
+      env.LINKS.delete(`owner:${code}`),
+      env.LINKS.delete(`u:${userId}:${code}`),
+      env.LINKS.delete(`countries:${code}`),
+      env.LINKS.delete(`browsers:${code}`),
+      env.LINKS.delete(`devices:${code}`),
+      env.LINKS.delete(`referrers:${code}`),
+    ]);
+  }
+
+  await env.LINKS.delete(`signup:${userId}`);
+
+  // Full erasure needs admin rights, so it only runs when a service
+  // role key is configured. Otherwise it is flagged for manual action.
+  let authDeleted = false;
+
+  if (purge && env.SUPABASE_SERVICE_ROLE_KEY) {
+    try {
+      const res = await fetch(`${supabaseBase(env)}/auth/v1/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      });
+
+      authDeleted = res.ok;
+    } catch {
+      authDeleted = false;
+    }
+  }
+
+  await postWebhook(env, {
+    title: purge ? "🗑️ Account deleted — full erasure requested" : "🗑️ Account deleted",
+    color: 0xff6b6b,
+    fields: [
+      { name: "Email", value: claims.email || "unknown", inline: false },
+      { name: "User ID", value: userId, inline: false },
+      { name: "Links removed", value: String(codes.length), inline: true },
+      { name: "Erase all data", value: purge ? "yes" : "no", inline: true },
+      {
+        name: "Auth record",
+        value: authDeleted
+          ? "deleted automatically"
+          : purge
+            ? "**needs manual deletion**"
+            : "retained",
+        inline: false,
+      },
+    ],
+  });
+
+  return json({ deleted: true, links: codes.length, authDeleted, purge }, 200, cors);
+}
+
 /* ══ OWNERSHIP ═══════════════════════════════════════════════════ */
 
 async function assertOwner(env, userId, code) {
@@ -295,7 +413,7 @@ async function assertOwner(env, userId, code) {
 
 /* ══ AUTH — Supabase JWT, verified against the project JWKS ══════ */
 
-async function getUserId(request, env) {
+async function getClaims(request, env) {
   const header = request.headers.get("authorization") ?? "";
 
   if (!header.toLowerCase().startsWith("bearer ")) return null;
@@ -336,7 +454,7 @@ async function getUserId(request, env) {
         ["verify"]
       );
 
-      return (await crypto.subtle.verify("HMAC", key, sig, signed)) ? payload.sub : null;
+      return (await crypto.subtle.verify("HMAC", key, sig, signed)) ? payload : null;
     }
 
     if (head.alg !== "ES256" && head.alg !== "RS256") return null;
@@ -357,7 +475,7 @@ async function getUserId(request, env) {
 
     const key = await crypto.subtle.importKey("jwk", jwk, importAlgo, false, ["verify"]);
 
-    return (await crypto.subtle.verify(verifyAlgo, key, sig, signed)) ? payload.sub : null;
+    return (await crypto.subtle.verify(verifyAlgo, key, sig, signed)) ? payload : null;
   } catch {
     return null;
   }
@@ -440,12 +558,10 @@ function randomCode() {
   return Array.from(bytes, (b) => chars[b % chars.length]).join("");
 }
 
-/* Same notification the shortener sends, so account-made links still
-   show up in Discord. Set DISCORD_WEBHOOK as a secret to override. */
-async function notifyDiscord(env, code, destination) {
-  const hook =
-    env.DISCORD_WEBHOOK ??
-    "https://discord.com/api/webhooks/1504026402377306143/auoTQp5x7xEuyt0_rXcDyqXLyHYl6qWkQ5PtSdHljzvP0QAxIydKYZ5m2ilk_XxWXa3n";
+/* Account events (signups, deletions) — same DISCORD_WEBHOOK the
+   link notifications use, configured in the worker's variables. */
+async function postWebhook(env, embed) {
+  const hook = env.DISCORD_WEBHOOK;
 
   if (!hook) return;
 
@@ -456,21 +572,29 @@ async function notifyDiscord(env, code, destination) {
       body: JSON.stringify({
         embeds: [
           {
-            title: "🔗 New Link Created! (dashboard)",
-            color: 0x7c6bff,
-            fields: [
-              { name: "✂️ Short Link", value: `${SITE}/${code}`, inline: false },
-              { name: "🌐 Destination", value: destination, inline: false },
-            ],
+            ...embed,
             timestamp: new Date().toISOString(),
-            footer: { text: "urlsify.com · dashboard" },
+            footer: { text: "urlsify.com · accounts" },
           },
         ],
       }),
     });
   } catch {
-    // a failed notification must never fail the link creation
+    // a failed notification must never fail the user's action
   }
+}
+
+/* Same notification the shortener sends, so account-made links still
+   show up in Discord. */
+async function notifyDiscord(env, code, destination) {
+  await postWebhook(env, {
+    title: "🔗 New Link Created! (dashboard)",
+    color: 0x7c6bff,
+    fields: [
+      { name: "✂️ Short Link", value: `${SITE}/${code}`, inline: false },
+      { name: "🌐 Destination", value: destination, inline: false },
+    ],
+  });
 }
 
 function b64urlToBytes(str) {

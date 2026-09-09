@@ -1,0 +1,22 @@
+# Files in this repo that must NOT be served as static assets.
+# wrangler.jsonc uploads "directory": "." — the whole repo — so without
+# this list the worker source (and its Discord webhook) is downloadable
+# from the live site.
+
+# Worker source
+worker.js
+dashboard-worker/
+
+# Cloudflare + build config
+wrangler.toml
+wrangler.jsonc
+.assetsignore
+.gitignore
+
+# Database + notes
+supabase-schema.sql
+notes.txt
+save.txt
+
+# Editor
+.vscode/

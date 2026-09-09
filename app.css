@@ -38,6 +38,15 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 ::selection { background: var(--accent-1); color: #fff; }
+
+/* Keyboard focus only — mouse clicks never draw the browser default. */
+:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) { outline: none; }
+/* inputs already signal focus with their own border + glow */
+.input:focus-visible, .select:focus-visible, .textarea:focus-visible { outline: none; }
 a { color: inherit; text-decoration: none; }
 button, input, textarea, select { font-family: inherit; color: inherit; }
 
@@ -97,6 +106,12 @@ button, input, textarea, select { font-family: inherit; color: inherit; }
 .btn-primary {
   background: linear-gradient(100deg, var(--accent-1), var(--accent-2));
   color: #07070d; border-color: transparent; box-shadow: 0 6px 26px -8px var(--glow);
+  /* The gradient is sized to the padding box but painted across the
+     border box, so it tiles into the 1px transparent border — showing
+     the far end of the ramp as a sliver at each corner. Sizing it to
+     the border box lines the ends up with the outer edge. */
+  background-origin: border-box;
+  background-repeat: no-repeat;
 }
 .btn-primary:hover { background: linear-gradient(100deg, var(--accent-2), var(--accent-1)); border-color: transparent; }
 .btn-ghost { background: transparent; }
@@ -186,6 +201,10 @@ button, input, textarea, select { font-family: inherit; color: inherit; }
 .auth-back:hover { color: var(--fg); }
 .auth-card {
   width: 100%; max-width: 420px;
+  /* alerts and the perk list change this card's height; let it scroll
+     instead of crushing its own contents on short viewports */
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
   border: 1px solid var(--border); background: rgba(12,12,22,0.7);
   backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
   border-radius: 26px; padding: 2rem;
@@ -209,6 +228,9 @@ button, input, textarea, select { font-family: inherit; color: inherit; }
 }
 .auth-tab.active { background: rgba(255,255,255,0.08); color: var(--fg); }
 .auth-form { display: flex; flex-direction: column; gap: 1rem; }
+/* only take vertical space once an alert is actually on screen */
+.auth-card .alert { margin-bottom: 0; }
+.auth-card .alert.show { margin-bottom: 1rem; }
 .auth-foot { margin-top: 1.3rem; text-align: center; font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
 .auth-foot a { color: var(--accent-2); }
 .auth-link-btn { background: none; border: none; color: var(--accent-2); font-size: 0.78rem; cursor: pointer; padding: 0; }
@@ -255,6 +277,8 @@ button, input, textarea, select { font-family: inherit; color: inherit; }
 .nav-item.active {
   background: linear-gradient(100deg, rgba(124,107,255,0.16), rgba(52,210,255,0.08));
   border-color: rgba(124,107,255,0.28); color: var(--fg); font-weight: 600;
+  background-origin: border-box;
+  background-repeat: no-repeat;
 }
 .nav-count { margin-left: auto; font-size: 0.68rem; font-family: var(--mono); color: var(--muted); }
 .sidebar-foot { margin-top: auto; padding-top: 0.9rem; border-top: 1px solid var(--border); }
@@ -472,3 +496,11 @@ tr.manage-row .manage-inner { padding: 1.15rem 1.2rem; display: grid; grid-templ
 @media (max-width: 860px) {
   tr.manage-row .manage-inner { grid-template-columns: 1fr; gap: 1rem; }
 }
+
+/* ── danger zone ──────────────────────────────────────────── */
+.danger-card {
+  border-color: rgba(255,107,107,0.28);
+  background: rgba(255,107,107,0.035);
+  margin-top: 1.2rem;
+}
+.danger-card .card-sub { max-width: 62ch; }

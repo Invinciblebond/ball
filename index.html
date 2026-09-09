@@ -1059,6 +1059,12 @@
     color: var(--pill-fg);
     border-color: transparent;
     box-shadow: 0 6px 22px -10px var(--glow);
+  /* the gradient is sized to the padding box but painted across the
+     border box, so it tiles into the 1px border — showing the far end
+     of the ramp as a sliver at each corner. Size it to the border box
+     instead so the ends line up with the outer edge. */
+  background-origin: border-box;
+  background-repeat: no-repeat;
   }
   .account-btn.primary:hover { background: linear-gradient(100deg, var(--accent-2), var(--accent-1)); }
 
@@ -1196,6 +1202,17 @@
   @media (prefers-reduced-motion: reduce) {
     .text-gold, .text-blue { animation: none; }
   }
+
+  /* ── FOCUS RINGS ──────────────────────────────────────────
+     Keyboard focus gets an on-brand ring; mouse clicks don't,
+     so the browser's default orange outline never shows up. */
+  :focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 2px;
+  }
+  :focus:not(:focus-visible) { outline: none; }
+  .account-btn:focus-visible,
+  .plate:focus-visible { outline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -1393,7 +1410,10 @@
   </section>
 
   <footer>
-    <span class="footer-note">no sign-up required · free forever</span>
+    <span class="footer-note">
+      no sign-up required · free forever ·
+      <a href="/privacy" style="color:inherit;text-decoration:underline;text-underline-offset:3px">data policy</a>
+    </span>
   </footer>
 </div>
 
